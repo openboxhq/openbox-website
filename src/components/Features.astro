@@ -1,0 +1,214 @@
+---
+const gantt = [
+  { id: "ACT-2131", name: "L03 rebar · Zone A", start: 4, plan: 18, actual: 18, state: "done" },
+  { id: "ACT-2140", name: "L03 slab pour · Zone A", start: 24, plan: 12, actual: 12, state: "snap" },
+  { id: "ACT-2142", name: "L03 slab pour · Zone C", start: 36, plan: 14, actual: 26, state: "late" },
+  { id: "ACT-2170", name: "L04 formwork · Zone A", start: 62, plan: 24, actual: 0, state: "future" },
+];
+const captures = [
+  { name: "360° walk", detail: "Weekly · interiors" },
+  { name: "Phone", detail: "Any time · close-ups" },
+  { name: "Drone", detail: "Weekly · exterior and roof" },
+  { name: "Site camera", detail: "All day · structure and gate" },
+];
+---
+<section class="section features" id="how-it-works">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">How it works</p>
+      <h2 class="display">See the work. Verify it.<br />Update the schedule.</h2>
+    </div>
+
+    <article class="row" data-live>
+      <div class="copy">
+        <span class="step mono">01 · Capture</span>
+        <h3 class="display">Every capture on one timeline.</h3>
+        <p>Upload walks, phone video and drone flights, or connect the cameras already on site. Openbox places each one on the floor plan and the project timeline.</p>
+      </div>
+      <div class="panel grain-panel">
+        <div class="captures">
+          {captures.map((c, i) => (
+            <div class="capture card" style={`--i:${i}`}>
+              <span class="cap-name">{c.name}</span>
+              <span class="cap-detail mono">{c.detail}</span>
+            </div>
+          ))}
+          <div class="capture-line" aria-hidden="true"><span></span></div>
+          <div class="capture-sink card mono">L03 · TIMELINE · 4 SOURCES</div>
+        </div>
+      </div>
+    </article>
+
+    <article class="row" data-live>
+      <div class="copy">
+        <span class="step mono">02 · Verify</span>
+        <h3 class="display">Milestones, verified with evidence.</h3>
+        <p>Vision-language models detect work as it happens. An Openbox reviewer verifies each milestone, and every milestone keeps the clip that proves it.</p>
+      </div>
+      <div class="panel grain-panel">
+        <div class="verify card">
+          <div class="v-head mono"><span>milestone.verify</span><span>CAM-04</span></div>
+          <div class="v-title">Slab pour · Level 3 · Zone A</div>
+          <div class="v-clip" aria-hidden="true">
+            <svg viewBox="0 0 320 120"><rect width="320" height="120" fill="#ebebe6" /><path d="M0 92 L80 70 L170 78 L240 58 L320 66 L320 120 L0 120z" fill="#d6d6cf" /><rect x="110" y="40" width="70" height="34" fill="none" stroke="#3f5500" stroke-width="2" stroke-dasharray="5 4" /></svg>
+            <span class="v-time mono">WED 10:42:18</span>
+          </div>
+          <ul class="v-steps mono">
+            <li class="s1"><span>Detected</span><span>10:42</span></li>
+            <li class="s2"><span>Verified by an Openbox reviewer</span><span>10:51</span></li>
+            <li class="s3"><span>Actual date recorded · ACT-2140</span><span>10:51</span></li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="row" data-live>
+      <div class="copy">
+        <span class="step mono">03 · Schedule</span>
+        <h3 class="display">Actual dates, recorded for you.</h3>
+        <p>Import your P6 (XER) or Microsoft Project schedule. Verified milestones record actual dates against each activity and flag work that is running late. No BIM model required. Procore and Autodesk integrations are planned.</p>
+      </div>
+      <div class="panel grain-panel">
+        <div class="gantt card">
+          <div class="g-head mono"><span>schedule · harbor st · bldg B</span><span>this week</span></div>
+          {gantt.map((g) => (
+            <div class={`g-row g-${g.state}`}>
+              <span class="g-id mono">{g.id}</span>
+              <span class="g-name">{g.name}</span>
+              <span class="g-track">
+                <span class="g-plan" style={`left:${g.start}%;width:${g.plan}%`}></span>
+                {g.actual > 0 && <span class="g-actual" style={`left:${g.start}%;width:${g.actual}%`}></span>}
+                {g.state === "late" && <span class="g-flag mono" style={`left:${g.start + g.actual + 1}%`}>+2d</span>}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+
+    <article class="row" data-live>
+      <div class="copy">
+        <span class="step mono">04 · Ask</span>
+        <h3 class="display">Ask the site what happened.</h3>
+        <p>Search every camera and capture in plain language. Get the moment, the clip and the source in seconds, for claims, disputes and daily reports.</p>
+      </div>
+      <div class="panel grain-panel">
+        <div class="search card">
+          <div class="s-input"><span class="s-icon" aria-hidden="true">⌕</span><span class="s-query" data-type="when was the zone A slab on level 3 poured?">when was the zone A slab on level 3 poured?</span><span class="caret" aria-hidden="true"></span></div>
+          <div class="s-result">
+            <span class="signal-dot"></span>
+            <div>
+              <div class="s-r-title">Slab poured · Level 3 · Zone A</div>
+              <div class="s-r-meta mono">WED 10:42 · CAM-04 · 0:38 CLIP</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<script>
+  const TYPE_MS = 34;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function typeOut(el: HTMLElement, done: () => void) {
+    const text = el.dataset.type ?? "";
+    if (reduce) { el.textContent = text; done(); return; }
+    let i = 0;
+    const tick = () => {
+      el.textContent = text.slice(0, ++i);
+      if (i < text.length) setTimeout(tick, TYPE_MS);
+      else done();
+    };
+    tick();
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      const row = entry.target as HTMLElement;
+      io.unobserve(row);
+      row.classList.add("is-live");
+      const q = row.querySelector<HTMLElement>("[data-type]");
+      if (q) typeOut(q, () => row.classList.add("is-answered"));
+    });
+  }, { threshold: 0.45 });
+  document.querySelectorAll("[data-live]").forEach((r) => io.observe(r));
+</script>
+
+<style>
+  .features .row {
+    display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+    gap: clamp(28px, 6vw, 80px); align-items: center; padding-block: 44px;
+    border-top: 1px solid var(--line);
+  }
+  .copy { display: grid; gap: 12px; }
+  .copy h3 { font-size: clamp(30px, 3.6vw, 42px); }
+  .copy p { color: var(--ink-2); margin: 0; max-width: 44ch; }
+  .step { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .panel { padding: clamp(18px, 4vw, 44px); min-height: 300px; display: grid; place-items: center; }
+
+  /* 01 capture */
+  .captures { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: min(100%, 420px); }
+  .capture { padding: 12px; display: grid; gap: 4px; opacity: .35; transform: translateY(6px); transition: opacity .4s ease, transform .4s ease; transition-delay: calc(var(--i) * 120ms); }
+  .cap-name { font-weight: 600; font-size: 14px; }
+  .cap-detail { font-size: 10.5px; color: var(--ink-3); letter-spacing: .04em; }
+  .capture-line { grid-column: 1 / -1; height: 26px; position: relative; }
+  .capture-line span { position: absolute; left: 12%; right: 12%; top: 12px; height: 2px; background: var(--line-strong); transform-origin: left; transform: scaleX(0); transition: transform .6s ease .5s; }
+  .capture-sink { grid-column: 1 / -1; justify-self: center; padding: 10px 14px; font-size: 12px; letter-spacing: .08em; box-shadow: inset 3px 0 0 var(--signal), 0 18px 40px -22px rgba(0,0,0,.22); }
+  .is-live .capture { opacity: 1; transform: none; }
+  .is-live .capture-line span { transform: scaleX(1); }
+
+  /* 02 verify */
+  .verify { width: min(100%, 400px); padding: 16px; display: grid; gap: 12px; }
+  .v-head, .g-head { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--ink-3); letter-spacing: .06em; }
+  .v-title { font-weight: 600; font-size: 17px; }
+  .v-clip { position: relative; border-radius: 8px; overflow: hidden; }
+  .v-clip svg { display: block; width: 100%; height: auto; }
+  .v-time { position: absolute; left: 8px; bottom: 8px; font-size: 10.5px; background: rgba(17,17,16,.8); color: #fff; padding: 2px 6px; border-radius: 4px; }
+  .v-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 12px; }
+  .v-steps li { display: flex; justify-content: space-between; padding: 7px 10px; border-radius: 7px; background: var(--stone); color: var(--ink-3); transition: background .3s ease, color .3s ease, box-shadow .3s ease; }
+  .is-live .v-steps li { color: var(--ink); }
+  .is-live .v-steps .s1 { transition-delay: .2s; }
+  .is-live .v-steps .s2 { transition-delay: .9s; }
+  .is-live .v-steps .s3 { transition-delay: 1.6s; background: #f6ffd0; box-shadow: inset 3px 0 0 var(--signal); }
+
+  /* 03 gantt */
+  .gantt { width: 100%; padding: 16px; display: grid; gap: 10px; }
+  .g-row { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 4px 10px; align-items: center; font-size: 13.5px; }
+  .g-track { grid-column: 1 / -1; }
+  .g-id { font-size: 11px; color: var(--ink-3); }
+  .g-track { position: relative; height: 18px; background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), var(--line) calc(10% - 1px) 10%); border-radius: 4px; }
+  .g-plan { position: absolute; top: 4px; height: 10px; border: 1px dashed var(--ink-3); border-radius: 3px; }
+  .g-actual { position: absolute; top: 4px; height: 10px; background: var(--ink); border-radius: 3px; transform-origin: left; transform: scaleX(0); transition: transform .7s cubic-bezier(.2,.8,.2,1); }
+  .g-done .g-actual { background: var(--ink-2); }
+  .g-snap .g-actual { background: var(--signal); box-shadow: inset 0 0 0 1px #9fc400; transition-delay: .5s; }
+  .g-late .g-actual { transition-delay: .9s; }
+  .g-flag { position: absolute; top: -1px; font-size: 10.5px; padding: 1px 5px; border: 1px solid var(--ink); border-radius: 4px; background: var(--paper); opacity: 0; transition: opacity .3s ease 1.6s; }
+  .is-live .g-actual { transform: scaleX(1); }
+  .is-live .g-flag { opacity: 1; }
+
+  /* 04 search */
+  .search { width: min(100%, 440px); padding: 14px; display: grid; gap: 12px; }
+  .s-input { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: 10px; font-size: 15.5px; min-height: 48px; }
+  .s-icon { color: var(--ink-3); font-size: 18px; }
+  .caret { width: 1.5px; height: 18px; background: var(--ink); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .s-result { display: flex; gap: 12px; align-items: baseline; padding: 12px 14px; border-radius: 10px; background: var(--stone); opacity: 0; transform: translateY(6px); transition: opacity .35s ease, transform .35s ease; }
+  .s-result .signal-dot { flex: none; transform: translateY(-2px); }
+  .s-r-title { font-weight: 600; }
+  .s-r-meta { font-size: 11.5px; color: var(--ink-3); letter-spacing: .05em; }
+  .is-answered .s-result { opacity: 1; transform: none; }
+  .is-answered .caret { display: none; }
+
+  @media (max-width: 860px) {
+    .features .row { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .capture { opacity: 1; transform: none; }
+    .capture-line span, .g-actual { transform: none; }
+    .g-flag, .s-result { opacity: 1; transform: none; }
+    .v-steps li { color: var(--ink); }
+  }
+</style>

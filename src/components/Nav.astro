@@ -1,0 +1,173 @@
+---
+import { PRODUCTS } from "../data/products";
+import { DEMO_HREF, DEMO_IS_EXTERNAL } from "../data/site";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const externalAttrs = DEMO_IS_EXTERNAL ? { target: "_blank", rel: "noopener" } : {};
+const links = [
+  { href: `${base}#how-it-works`, label: "How it works" },
+  { href: `${base}#pricing`, label: "Pricing" },
+  { href: `${base}about/`, label: "About" },
+];
+---
+<div class="announce">
+  <div class="wrap announce-row">
+    <a class="df" href="https://dragonfruit.ai/" target="_blank" rel="noopener">
+      <img src={`${base}images/brand/dragonfruit-logo.svg`} alt="Dragonfruit AI" width="112" height="20" />
+      <span>Openbox is a Dragonfruit AI company</span>
+    </a>
+    <span class="sep" aria-hidden="true"></span>
+    <a class="pilot" href={DEMO_HREF} {...externalAttrs}><span class="signal-dot"></span>Free 30-day pilot on a live project →</a>
+  </div>
+</div>
+<header class="nav">
+  <div class="wrap nav-row">
+    <a class="brand" href={base} aria-label="Openbox home">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
+        <rect width="32" height="32" rx="7" fill="#111110" />
+        <path d="M8 12.5 16 8l8 4.5v9L16 26l-8-4.5z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" />
+        <path d="M8 12.5 16 17l8-4.5" fill="none" stroke="#d9ff42" stroke-width="2" stroke-linejoin="round" />
+      </svg>
+      <span>Openbox</span>
+    </a>
+
+    <nav class="links" aria-label="Main">
+      <div class="dd" data-dropdown>
+        <button class="dd-trigger" type="button" aria-expanded="false" aria-controls="product-menu">
+          Product <span class="chev" aria-hidden="true">▾</span>
+        </button>
+        <div class="dd-panel" id="product-menu">
+          <div class="dd-grid">
+            {PRODUCTS.map((p) => (
+              <div class="dd-col">
+                <a class="dd-head" href={`${base}#${p.anchor}`}>
+                  <span class="eyebrow">{p.category}</span>
+                  <span class="dd-name">{p.name}</span>
+                  <span class="dd-sum">{p.summary}</span>
+                </a>
+                <ul>
+                  {p.modules.map((m) => (
+                    <li>
+                      <a href={`${base}#${p.anchor}`}>
+                        <span class="m-name">{m.name}</span>
+                        <span class="m-detail">{m.detail}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <a class="dd-foot mono" href={`${base}#platform`}>One camera network · Two jobs · Built on Dragonfruit AI →</a>
+        </div>
+      </div>
+      {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+
+    <div class="nav-actions">
+      <a class="btn btn-ink nav-cta" href={DEMO_HREF} {...externalAttrs}>Book a demo</a>
+      <details class="mobile">
+        <summary aria-label="Open menu">Menu</summary>
+        <div class="mobile-panel">
+          {PRODUCTS.map((p) => <a href={`${base}#${p.id}`}><b>{p.name}</b><span>{p.category}</span></a>)}
+          {links.map((l) => <a href={l.href}>{l.label}</a>)}
+          <a class="m-cta" href={DEMO_HREF} {...externalAttrs}>Book a demo</a>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-dropdown]").forEach((dd) => {
+    const trigger = dd.querySelector<HTMLButtonElement>(".dd-trigger")!;
+    const setOpen = (open: boolean) => {
+      dd.classList.toggle("is-open", open);
+      trigger.setAttribute("aria-expanded", String(open));
+    };
+    trigger.addEventListener("click", () => setOpen(!dd.classList.contains("is-open")));
+    dd.addEventListener("mouseenter", () => setOpen(true));
+    dd.addEventListener("mouseleave", () => setOpen(false));
+    dd.addEventListener("focusout", (e) => {
+      if (!dd.contains(e.relatedTarget as Node)) setOpen(false);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && dd.classList.contains("is-open")) { setOpen(false); trigger.focus(); }
+    });
+    dd.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+  });
+</script>
+
+<style>
+  .announce { background: var(--night); color: #d8d8d1; font-size: 13.5px; }
+  .announce-row { display: flex; gap: 14px; align-items: center; justify-content: center; padding-block: 9px; flex-wrap: wrap; text-align: center; }
+  .announce a { text-decoration: none; display: inline-flex; align-items: center; gap: 10px; color: #d8d8d1; }
+  .announce a:hover { color: #fff; }
+  .df img { height: 20px; width: auto; display: block; }
+  .df span { border-left: 1px solid #44443f; padding-left: 10px; }
+  .sep { width: 1px; height: 14px; background: #44443f; }
+  .pilot { font-weight: 600; color: #fff !important; }
+
+  .nav {
+    position: sticky; top: 0; z-index: 30;
+    background: rgba(255, 255, 255, .86);
+    backdrop-filter: saturate(1.4) blur(12px);
+    -webkit-backdrop-filter: saturate(1.4) blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 12px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 650; font-size: 19px; letter-spacing: -.01em; }
+  .links { display: flex; gap: 28px; align-items: center; font-size: 15px; }
+  .links > a, .dd-trigger { text-decoration: none; color: var(--ink-2); }
+  .links > a:hover, .dd-trigger:hover, .dd.is-open .dd-trigger { color: var(--ink); }
+  .nav-actions { display: flex; align-items: center; gap: 10px; }
+  .nav-cta { padding: 10px 14px; font-size: 14px; }
+
+  .dd { position: relative; }
+  .dd-trigger { font: inherit; background: none; border: 0; padding: 8px 0; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+  .chev { font-size: 11px; transition: transform .2s ease; }
+  .dd.is-open .chev { transform: rotate(180deg); }
+  .dd-panel {
+    position: absolute; left: 50%; top: calc(100% + 10px);
+    width: min(760px, calc(100vw - 40px));
+    transform: translate(-38%, 6px); opacity: 0; visibility: hidden;
+    transition: opacity .18s ease, transform .18s ease, visibility .18s;
+    background: var(--paper); border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,.35);
+    padding: 10px;
+  }
+  .dd-panel::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 14px; }
+  .dd.is-open .dd-panel { opacity: 1; visibility: visible; transform: translate(-38%, 0); }
+  .dd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .dd-col { padding: 14px; border-radius: 12px; }
+  .dd-col:first-child { background: var(--stone) var(--grain); }
+  .dd-head { display: grid; gap: 4px; text-decoration: none; padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+  .dd-name { font-family: var(--serif); font-size: 26px; line-height: 1.1; }
+  .dd-sum { font-size: 13.5px; color: var(--ink-2); }
+  .dd-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  .dd-col li a { display: grid; gap: 1px; padding: 7px 8px; border-radius: 8px; text-decoration: none; }
+  .dd-col li a:hover { background: rgba(0,0,0,.045); }
+  .m-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .m-detail { font-size: 12.5px; color: var(--ink-3); }
+  .dd-foot { display: block; margin-top: 6px; padding: 10px 14px; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); text-decoration: none; border-radius: 10px; }
+  .dd-foot:hover { background: var(--stone); color: var(--ink); }
+
+  .mobile { display: none; position: relative; }
+  .mobile summary { list-style: none; cursor: pointer; padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: 10px; font-size: 14px; }
+  .mobile summary::-webkit-details-marker { display: none; }
+  .mobile-panel { position: absolute; right: 0; top: calc(100% + 8px); width: min(300px, calc(100vw - 40px)); background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 8px; display: grid; box-shadow: 0 30px 60px -30px rgba(0,0,0,.35); }
+  .mobile-panel a { display: grid; padding: 10px 12px; border-radius: 8px; text-decoration: none; font-size: 15px; }
+  .mobile-panel a span { font-size: 12.5px; color: var(--ink-3); }
+  .mobile-panel a:hover { background: var(--stone); }
+  .mobile-panel .m-cta { margin-top: 6px; background: var(--ink); color: var(--paper); text-align: center; font-weight: 600; }
+  .mobile-panel .m-cta:hover { background: #2a2a28; }
+
+  @media (max-width: 860px) {
+    .links { display: none; }
+    .mobile { display: block; }
+    .sep { display: none; }
+  }
+  @media (max-width: 620px) {
+    .nav-cta, .pilot { display: none; }
+  }
+</style>

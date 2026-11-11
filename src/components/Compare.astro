@@ -1,0 +1,57 @@
+---
+const before = [
+  "Progress updates once a week, on walk day",
+  "Fixed cameras record time-lapse, not progress",
+  "Progress status often depends on a BIM model",
+  "Security alerts come from a separate system",
+];
+const after = [
+  "Site cameras and drones fill the days between walks",
+  "The same cameras detect milestones as they happen",
+  "Starts from your schedule and floor plans; BIM optional",
+  "After-hours alerts on the same cameras and timeline",
+];
+---
+<section class="section" id="why-now">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Why now</p>
+      <h2 class="display">Progress tracking was built around the weekly walk.<br />Your site records video every day.</h2>
+    </div>
+    <div class="split">
+      <div class="side side-old">
+        <span class="tag mono">Walks only</span>
+        <h3 class="display">What most sites get today</h3>
+        <ul class="card">
+          {before.map((b) => <li><span class="x" aria-hidden="true">–</span>{b}</li>)}
+        </ul>
+      </div>
+      <div class="side side-new">
+        <span class="tag mono">Walks plus site cameras · Openbox</span>
+        <h3 class="display">What Openbox adds</h3>
+        <ul class="card">
+          {after.map((a) => <li><span class="signal-dot" aria-hidden="true"></span>{a}</li>)}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .split { display: grid; grid-template-columns: 1fr 1fr; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); }
+  .side { padding: clamp(28px, 5vw, 64px); display: grid; gap: 18px; justify-items: center; text-align: center; }
+  .side-old { background: linear-gradient(180deg, #fafaf8, #e9e9e4), var(--grain); background-blend-mode: multiply; }
+  .side-new { background: radial-gradient(120% 90% at 50% 0%, #3a3a37, var(--night) 70%), var(--grain); background-blend-mode: overlay; color: #f4f4ef; }
+  .tag { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; padding: 5px 10px; border-radius: 6px; background: rgba(0,0,0,.06); color: var(--ink-2); }
+  .side-new .tag { background: rgba(255,255,255,.1); color: #e8e8e2; }
+  .side h3 { font-size: clamp(30px, 3.4vw, 40px); }
+  .side ul { list-style: none; margin: 8px 0 0; padding: 18px 22px; display: grid; gap: 12px; text-align: left; width: min(100%, 400px); font-size: 15.5px; }
+  .side-new ul { background: rgba(255,255,255,.92); color: var(--ink); border-color: rgba(255,255,255,.3); }
+  .side li { display: flex; gap: 12px; align-items: baseline; }
+  .x { color: var(--ink-3); font-family: var(--mono); }
+  .side-new .signal-dot { flex: none; transform: translateY(-2px); background: #9fc400; box-shadow: none; }
+
+  @media (max-width: 760px) {
+    .split { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

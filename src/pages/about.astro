@@ -1,0 +1,149 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+
+import { DEMO_HREF, DEMO_IS_EXTERNAL } from "../data/site";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const externalAttrs = DEMO_IS_EXTERNAL ? { target: "_blank", rel: "noopener" } : {};
+
+interface Advisor {
+  name: string;
+  role: string;
+  photo: string;
+  linkedin: string;
+}
+const advisors: Advisor[] = [
+  { name: "Amit Kumar", role: "Founder and CEO, Dragonfruit AI", photo: "images/advisors/amit-kumar.jpg", linkedin: "https://www.linkedin.com/in/amitkumar/" },
+  { name: "Shivang Agarwal", role: "Head of Engineering, Dragonfruit AI", photo: "images/advisors/shivang-agarwal.jpg", linkedin: "https://www.linkedin.com/in/shivang-agarwal/" },
+];
+
+const beliefs = [
+  { k: "Record what is built, not what was reported.", v: "Decisions on site should rest on evidence anyone can open: the clip, the date and the place." },
+  { k: "One camera network should serve both jobs.", v: "The camera that records progress by day can watch the site at night. One network, one record." },
+  { k: "Keep a person in the loop.", v: "AI detects the work and the risks. A person verifies each milestone before it reaches your schedule, and reviews each alert before your team is notified." },
+  { k: "Meet the site where it is.", v: "Walks, phones, drones and the cameras already on the fence. No new hardware program to start." },
+];
+---
+<Base
+  title="About Openbox — A Dragonfruit AI company"
+  description="Openbox gives everyone who builds a true, continuous record of their site. It is a Dragonfruit AI company."
+>
+  <Nav />
+  <main>
+    <section class="mission">
+      <div class="wrap mission-inner">
+        <p class="eyebrow">Our mission</p>
+        <h1 class="display">Every building starts as a drawing.<br /><em>We keep the record of what it becomes.</em></h1>
+        <p class="lede">
+          Openbox gives everyone who builds a true, continuous record of their site. General contractors and owners see what is built, when it was built and what happened on site after hours, from the cameras and captures they already have.
+        </p>
+      </div>
+    </section>
+
+    <section class="section story">
+      <div class="wrap story-grid">
+        <div>
+          <p class="eyebrow">Why we started</p>
+          <h2 class="display">Construction runs on video now. Its software still runs on photos.</h2>
+        </div>
+        <div class="prose">
+          <p>
+            A modern jobsite already has cameras on the fence, 360° walks every week and drone flights over the roof. Yet progress still arrives days late, in someone's report, and the security cameras answer to a different vendor than the progress tools.
+          </p>
+          <p>
+            We built Openbox to join them. One platform turns all of that video into a living digital twin of the project, records actual dates against the schedule and watches the site after hours.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section beliefs-wrap">
+      <div class="wrap">
+        <p class="eyebrow">What we believe</p>
+        <div class="beliefs">
+          {beliefs.map((b) => (
+            <div class="belief">
+              <span class="b-k">{b.k}</span>
+              <span class="b-v">{b.v}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section advisors">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Advisors</p>
+          <h2 class="display">Guided by the team behind Dragonfruit AI.</h2>
+        </div>
+        <div class="advisor-grid">
+          {advisors.map((a) => (
+            <a class="advisor" href={a.linkedin} target="_blank" rel="noopener" aria-label={`${a.name} on LinkedIn`}>
+              <img src={`${base}${a.photo}`} alt={`Portrait of ${a.name}`} width="480" height="480" loading="lazy" />
+              <span class="a-caption">
+                <span class="a-name">{a.name} <span class="a-li mono" aria-hidden="true">in ↗</span></span>
+                <span class="a-role mono">{a.role}</span>
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section backed">
+      <div class="wrap backed-inner grain-panel">
+        <a class="df-mark" href="https://dragonfruit.ai/" target="_blank" rel="noopener">
+          <img src={`${base}images/brand/dragonfruit-logo-ink.svg`} alt="Dragonfruit AI" width="190" height="34" />
+        </a>
+        <p>Openbox is built and backed by Dragonfruit AI, the enterprise video AI company.</p>
+        <a class="btn btn-ink" href={DEMO_HREF} {...externalAttrs}>Book a demo</a>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .mission { padding-block: 120px 40px; }
+  .mission-inner { display: grid; gap: 22px; justify-items: center; text-align: center; }
+  .mission .display { font-size: clamp(42px, 6.6vw, 80px); }
+  .mission em { font-style: italic; color: var(--ink-2); }
+
+  .story-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(28px, 6vw, 80px); }
+  .story .display { font-size: clamp(32px, 4vw, 48px); margin-top: 12px; }
+  .prose { display: grid; gap: 16px; color: var(--ink-2); font-size: 18px; }
+  .prose p { margin: 0; text-wrap: pretty; }
+  .prose a { color: var(--ink); }
+
+  .beliefs-wrap { padding-top: 0; }
+  .beliefs { margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
+  .belief { display: grid; gap: 8px; padding: 24px 24px 24px 0; border-bottom: 1px solid var(--line); }
+  .belief:nth-child(even) { padding-left: 24px; border-left: 1px solid var(--line); }
+  .b-k { font-family: var(--serif); font-size: 28px; line-height: 1.15; }
+  .b-v { color: var(--ink-2); }
+
+  .advisors { background: var(--stone) var(--grain); border-block: 1px solid var(--line); }
+  .advisor-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 280px)); gap: 24px; }
+  .advisor { margin: 0; display: grid; gap: 14px; text-decoration: none; color: inherit; }
+  .a-li { font-size: 12px; color: var(--ink-3); border: 1px solid var(--line-strong); border-radius: 4px; padding: 1px 4px; vertical-align: middle; }
+  .advisor:hover .a-li { color: var(--ink); border-color: var(--ink); }
+  .advisor img { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 16px; background: var(--paper); border: 1px solid var(--line); filter: grayscale(1) contrast(1.05); transition: filter .3s ease; }
+  .advisor:hover img { filter: none; }
+  .a-caption { display: grid; gap: 4px; }
+  .a-name { font-family: var(--serif); font-size: 28px; line-height: 1.1; }
+  .a-role { font-size: 12px; letter-spacing: .06em; color: var(--ink-3); }
+
+  .backed-inner { display: grid; justify-items: center; gap: 18px; text-align: center; padding: clamp(28px, 5vw, 56px); }
+  .df-mark img { height: 30px; width: auto; display: block; }
+  .backed-inner p { margin: 0; color: var(--ink-2); font-size: 18px; max-width: 48ch; }
+
+  @media (max-width: 760px) {
+    .story-grid, .beliefs { grid-template-columns: minmax(0, 1fr); }
+    .belief:nth-child(even) { padding-left: 0; border-left: 0; }
+    .advisor-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .a-name { font-size: 22px; }
+  }
+</style>

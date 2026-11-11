@@ -1,0 +1,145 @@
+---
+import { PRODUCTS } from "../data/products";
+
+const replaces = [
+  { today: "Progress reports that wait for the weekly walk", openbox: "Twin" },
+  { today: "A progress tracker that needs a BIM model", openbox: "Twin" },
+  { today: "Separate safety, gate and security camera tools", openbox: "Watch" },
+];
+
+const supply = [
+  {
+    who: "You bring",
+    items: [
+      "Plans as PDF and a schedule from P6 or Microsoft Project",
+      "Access to your site cameras (most IP cameras with RTSP or ONVIF)",
+      "Optional: a 360° camera for walks, drone or phone video",
+    ],
+  },
+  {
+    who: "Openbox does",
+    items: [
+      "Connects cameras and places every capture on your plans",
+      "Runs the video AI and maps work to zones and activities",
+      "Reviews milestones and after-hours alerts with a person",
+    ],
+  },
+  {
+    who: "Partners supply",
+    items: [
+      "Camera towers and solar power for sites without cameras",
+      "Connectivity where a site has none",
+      "Guard or monitoring response, if you want one",
+    ],
+  },
+];
+---
+<section class="section platform" id="platform">
+  <div class="wrap">
+    <div class="intro">
+      <p class="eyebrow">The platform</p>
+      <h2 class="display">One camera network. Two jobs.</h2>
+      <div class="prose">
+        <p>
+          A jobsite needs two things from its cameras: a true record of what is built, and a safe, secure, well-run site.
+          Today those come from different vendors, and their cameras and timelines do not connect.
+        </p>
+        <p>
+          <b>Openbox Twin</b> is a digital twin of the site: a dated visual record of every walk, drone flight and camera feed, placed on your floor plans and linked to your schedule. Openbox reviewers verify each milestone.{" "}
+          <b>Openbox Watch</b> monitors the same site for safety, logistics and security: PPE, exclusion zones, the gate and crews by day, intrusion and theft after hours. A person reviews every alert before your team is notified.
+        </p>
+      </div>
+    </div>
+
+    <div class="products">
+      {PRODUCTS.map((p) => (
+        <article class={`product product-${p.id}`} id={p.id}>
+          <header>
+            <span class="eyebrow">{p.category}</span>
+            <h3 class="display">{p.name}</h3>
+            <p>{p.summary}</p>
+          </header>
+          <ul>
+            {p.modules.map((m) => (
+              <li>
+                <span class="m-name">{m.name}</span>
+                <span class="m-detail">{m.detail}</span>
+              </li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+
+    <div class="supply">
+      <p class="eyebrow">What it takes</p>
+      <div class="supply-grid">
+        {supply.map((s) => (
+          <div class="supply-col">
+            <span class="s-who">{s.who}</span>
+            <ul>{s.items.map((i) => <li>{i}</li>)}</ul>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="replaces">
+      <p class="eyebrow">What Openbox is built to replace</p>
+      <div class="rep-grid">
+        {replaces.map((r) => (
+          <div class="rep">
+            <span class="rep-today">{r.today}</span>
+            <span class="rep-ob mono">Instead: Openbox {r.openbox}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .platform { padding-top: 120px; }
+  .intro { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(28px, 6vw, 80px); align-items: start; margin-bottom: 56px; }
+  .intro .eyebrow { grid-column: 1 / -1; margin: 0; }
+  .intro .display { font-size: clamp(40px, 5.2vw, 64px); }
+  .prose { display: grid; gap: 16px; color: var(--ink-2); font-size: 18px; }
+  .prose p { margin: 0; text-wrap: pretty; }
+  .prose b { color: var(--ink); font-weight: 600; }
+
+  .products { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .product { border: 1px solid var(--line); border-radius: 20px; padding: clamp(22px, 3.5vw, 36px); display: grid; gap: 22px; align-content: start; }
+  .product-twin { background: var(--stone) var(--grain); }
+  .product-watch { background: var(--night) var(--grain); color: #f1f1ec; border-color: #2c2c29; }
+  .product header { display: grid; gap: 6px; }
+  .product h3 { font-size: clamp(34px, 4vw, 46px); }
+  .product header p { margin: 0; color: var(--ink-2); }
+  .product-watch header p, .product-watch .eyebrow { color: #b3b3ab; }
+  .product ul { list-style: none; margin: 0; padding: 0; display: grid; }
+  .product li { display: grid; grid-template-columns: minmax(0, 160px) minmax(0, 1fr); gap: 14px; padding: 11px 0; border-top: 1px solid var(--line); }
+  .product-watch li { border-top-color: #34342f; }
+  .m-name { font-weight: 600; font-size: 15px; }
+  .m-detail { color: var(--ink-2); font-size: 14.5px; }
+  .product-watch .m-detail { color: #c4c4bc; }
+
+  .supply { margin-top: 40px; display: grid; gap: 14px; }
+  .supply-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
+  .supply-col { padding: 18px 20px 0 0; }
+  .supply-col + .supply-col { padding-left: 20px; border-left: 1px solid var(--line); }
+  .s-who { font-family: var(--serif); font-size: 26px; }
+  .supply-col ul { margin: 10px 0 0; padding-left: 18px; color: var(--ink-2); font-size: 15px; display: grid; gap: 6px; }
+
+  .replaces { margin-top: 40px; display: grid; gap: 14px; }
+  .rep-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .rep { display: grid; gap: 8px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; }
+  .rep-today { font-size: 15px; color: var(--ink-2); }
+  .rep-ob { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); }
+
+  @media (max-width: 860px) {
+    .intro, .products, .supply-grid { grid-template-columns: minmax(0, 1fr); }
+    .supply-col + .supply-col { padding-left: 0; border-left: 0; }
+    .rep-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 520px) {
+    .product li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  }
+</style>

@@ -1,0 +1,212 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import { FORM_ENDPOINT } from "../data/site";
+
+const interests = [
+  { id: "both", label: "Openbox (Twin + Watch)" },
+  { id: "twin", label: "Twin · digital twin and progress" },
+  { id: "watch", label: "Watch · jobsite monitoring" },
+  { id: "portfolio", label: "Portfolio · 5+ projects" },
+  { id: "company", label: "Partnership, press or careers" },
+];
+const projectCounts = ["1", "2–5", "6–20", "20+"];
+const steps = [
+  { k: "Within one business day", v: "We reply to set up a 30-minute call." },
+  { k: "On the call", v: "We walk through Twin and Watch on a sample project and look at your site." },
+  { k: "Start free", v: "Connect one live project for 30 days. Our team does the setup." },
+];
+---
+<Base
+  title="Book a demo — Openbox"
+  description="Tell us about your projects and we will set up a 30-minute Openbox demo."
+>
+  <Nav />
+  <main>
+    <section class="demo">
+      <div class="wrap demo-grid">
+        <div class="demo-copy">
+          <p class="eyebrow">Book a demo</p>
+          <h1 class="display">See Openbox on your jobsite.</h1>
+          <p class="lede">Tell us a little about your projects. We will set up a call and show you Openbox Twin and Openbox Watch on a project like yours.</p>
+          <ol class="steps">
+            {steps.map((s, i) => (
+              <li>
+                <span class="step-n mono">0{i + 1}</span>
+                <span class="step-k">{s.k}</span>
+                <span class="step-v">{s.v}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <form class="form card" data-form data-endpoint={FORM_ENDPOINT} novalidate>
+          <fieldset class="field">
+            <legend>What are you interested in?</legend>
+            <div class="chips">
+              {interests.map((it, i) => (
+                <label class="chip-opt">
+                  <input type="radio" name="interest" value={it.id} checked={i === 0} />
+                  <span>{it.label}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <div class="row">
+            <label class="field">
+              <span>Full name</span>
+              <input id="f-name" name="name" type="text" autocomplete="name" required />
+            </label>
+            <label class="field">
+              <span>Work email</span>
+              <input id="f-email" name="email" type="email" autocomplete="email" required />
+            </label>
+          </div>
+          <div class="row">
+            <label class="field">
+              <span>Company</span>
+              <input id="f-company" name="company" type="text" autocomplete="organization" required />
+            </label>
+            <label class="field">
+              <span>Role</span>
+              <input id="f-role" name="role" type="text" autocomplete="organization-title" placeholder="e.g. VP Operations" />
+            </label>
+          </div>
+          <label class="field">
+            <span>Active projects</span>
+            <select id="f-projects" name="projects">
+              {projectCounts.map((p) => <option value={p}>{p}</option>)}
+            </select>
+          </label>
+          <label class="field">
+            <span>Anything we should know? <em>(optional)</em></span>
+            <textarea id="f-message" name="message" rows="4" placeholder="Project type, cameras on site, what you want to solve"></textarea>
+          </label>
+          <label class="hp" aria-hidden="true">
+            <span>Leave this empty</span>
+            <input name="website" type="text" tabindex="-1" autocomplete="off" />
+          </label>
+
+          <button class="btn btn-ink submit" type="submit">Request a demo</button>
+          <p class="status" data-status role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="done card" data-done hidden>
+          <span class="signal-dot"></span>
+          <h2 class="display">Thanks. We will be in touch within one business day.</h2>
+          <p>We have your details. Look out for an email from the Openbox team to pick a time.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Base>
+
+<script>
+  const REQUIRED = ["name", "email", "company"] as const;
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function validate(form: HTMLFormElement): string {
+    const data = new FormData(form);
+    const missing = REQUIRED.filter((k) => !String(data.get(k) ?? "").trim());
+    if (missing.length) return "Please fill in your name, work email and company.";
+    if (!EMAIL_RE.test(String(data.get("email")))) return "Please enter a valid work email.";
+    return "";
+  }
+
+  const loadedAt = Date.now();
+  const form = document.querySelector<HTMLFormElement>("[data-form]");
+  const done = document.querySelector<HTMLElement>("[data-done]");
+  if (form && done) {
+    const status = form.querySelector<HTMLElement>("[data-status]")!;
+    const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+    const preset = new URLSearchParams(location.search).get("interest");
+    if (preset) {
+      const radio = form.querySelector<HTMLInputElement>(`input[name=interest][value="${CSS.escape(preset)}"]`);
+      if (radio) radio.checked = true;
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const error = validate(form);
+      if (error) { status.textContent = error; status.dataset.kind = "error"; return; }
+
+      const data = new FormData(form);
+      if (String(data.get("website") ?? "")) return;
+      data.append("page", location.origin + location.pathname);
+      data.append("elapsedMs", String(Date.now() - loadedAt));
+      data.append("submittedAt", new Date().toISOString());
+
+      const endpoint = form.dataset.endpoint ?? "";
+      if (!endpoint) {
+        status.textContent = "The form is not available right now. Please try again later.";
+        status.dataset.kind = "error";
+        return;
+      }
+
+      button.disabled = true;
+      status.textContent = "Sending…";
+      status.dataset.kind = "info";
+      try {
+        await fetch(endpoint, { method: "POST", mode: "no-cors", credentials: "omit", referrerPolicy: "no-referrer", body: new URLSearchParams(data as unknown as Record<string, string>) });
+        form.hidden = true;
+        done.hidden = false;
+        done.scrollIntoView({ behavior: "smooth", block: "center" });
+      } catch (err: unknown) {
+        button.disabled = false;
+        status.textContent = "Something went wrong sending the form. Please try again in a moment.";
+        status.dataset.kind = "error";
+      }
+    });
+  }
+</script>
+
+<style>
+  .demo { padding-block: 88px 112px; }
+  .demo-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(28px, 6vw, 80px); align-items: start; }
+  .demo-copy { display: grid; gap: 18px; position: sticky; top: 110px; }
+  .demo-copy .display { font-size: clamp(42px, 5.6vw, 68px); }
+  .steps { list-style: none; margin: 14px 0 0; padding: 0; display: grid; border-top: 1px solid var(--ink); }
+  .steps li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 2px 12px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .step-n { grid-row: span 2; font-size: 12px; color: var(--ink-3); padding-top: 4px; }
+  .step-k { font-weight: 600; }
+  .step-v { color: var(--ink-2); font-size: 15px; }
+
+  .form { padding: clamp(20px, 3.5vw, 36px); display: grid; gap: 18px; }
+  .field { display: grid; gap: 6px; border: 0; margin: 0; padding: 0; min-width: 0; }
+  .field > span, legend { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+  legend { margin-bottom: 8px; }
+  .field em { font-weight: 400; color: var(--ink-3); font-style: normal; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  input[type=text], input[type=email], select, textarea {
+    font: inherit; font-size: 15px; color: var(--ink); background: var(--paper);
+    border: 1px solid var(--line-strong); border-radius: 10px; padding: 11px 12px; width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--ink); outline-offset: 1px; border-color: var(--ink); }
+  textarea { resize: vertical; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip-opt { position: relative; }
+  .chip-opt input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .chip-opt span { display: inline-block; padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: 999px; font-size: 14px; color: var(--ink-2); transition: background .15s ease, color .15s ease, border-color .15s ease; }
+  .chip-opt input:checked + span { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .chip-opt input:focus-visible + span { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .submit { justify-self: start; padding: 14px 20px; }
+  .submit:disabled { opacity: .6; cursor: progress; }
+  .status { margin: 0; font-size: 14px; min-height: 1.4em; }
+  .status[data-kind="error"] { color: #a1260d; }
+  .status[data-kind="info"] { color: var(--ink-2); }
+
+  .done { padding: clamp(24px, 4vw, 44px); display: grid; gap: 14px; justify-items: start; }
+  .done[hidden] { display: none; }
+  .done .display { font-size: clamp(30px, 3.6vw, 42px); }
+  .done p { margin: 0; color: var(--ink-2); }
+
+  @media (max-width: 860px) {
+    .demo { padding-top: 48px; }
+    .demo-grid, .row { grid-template-columns: minmax(0, 1fr); }
+    .demo-copy { position: static; }
+  }
+</style>
