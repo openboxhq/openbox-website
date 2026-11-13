@@ -1,12 +1,12 @@
 ---
 import { CONTACT_HREF, DEMO_HREF, DEMO_IS_EXTERNAL } from "../data/site";
-import { PLANS, PRICING_NOTES } from "../data/pricing";
+import { MODULES, PRICING_NOTES } from "../data/pricing";
 
 const principles = [
   { k: "Most cameras", v: "Most IP cameras (RTSP or ONVIF), 360° walk video, drone and phone video. No locked-in hardware." },
   { k: "Between walks", v: "Fixed cameras report work the day it happens. Interiors update on walk day." },
   { k: "Verified", v: "AI detects the work. An Openbox reviewer verifies each milestone, with the clip as evidence." },
-  { k: "Plain pricing", v: "Watch from $99 per site. Twin from $990 per project. Unlimited users, free for 30 days." },
+  { k: "Pilot first", v: "Start on one live project. We agree what success looks like, then price on the value you see." },
 ];
 const MONITORING = [
   { id: "safety", title: "Safety", items: ["PPE: hard hats, hi-vis, harnesses", "Crane swing and equipment exclusion zones", "Falls, open edges and work at height", "Fire, smoke and hot work"] },
@@ -56,23 +56,29 @@ const externalAttrs = DEMO_IS_EXTERNAL ? { target: "_blank", rel: "noopener" } :
   <div class="wrap">
     <div class="section-head center">
       <p class="eyebrow">Pricing</p>
-      <h2 class="display">Priced per jobsite.<br />Never per seat.</h2>
-      <p class="lede">Start with jobsite monitoring, the digital twin, or both. Bring your whole team, your trades and your owner: every plan has unlimited users and starts free for 30 days.</p>
+      <h2 class="display">Priced on the value<br />you get.</h2>
+      <p class="lede">Every jobsite is different. Take monitoring, the digital twin, or both, on one site or across your portfolio. We scope a pilot on one of your projects and set pricing together, based on what it saves you.</p>
     </div>
-    <div class="plans">
-      {PLANS.map((plan) => (
-        <article class={`plan${plan.featured ? " featured" : ""}`}>
-          <header>
-            <span class="plan-name mono">{plan.name} · {plan.tagline}</span>
-            <span class="plan-price"><span class="amount">{plan.price}</span><span class="unit">{plan.unit}</span></span>
-            <p>{plan.pitch}</p>
-          </header>
-          <ul>{plan.features.map((f) => <li>{f}</li>)}</ul>
-          <a class={`btn ${plan.featured ? "btn-signal" : "btn-line"}`} href={`${DEMO_HREF}?interest=${plan.interest}`}>{plan.cta}</a>
-        </article>
-      ))}
+    <div class="offer">
+      <div class="modules">
+        {MODULES.map((m, i) => (
+          <>
+            {i > 0 && <span class="join" aria-hidden="true">+</span>}
+            <div class="module">
+              <span class="module-name mono">{m.name} · {m.tagline}</span>
+              <p>{m.pitch}</p>
+            </div>
+          </>
+        ))}
+      </div>
+      <div class="offer-foot">
+        <ul class="plan-notes mono">{PRICING_NOTES.map((n) => <li>{n}</li>)}</ul>
+        <div class="offer-ctas">
+          <a class="btn btn-signal" href={`${DEMO_HREF}?interest=both`}>Start a pilot</a>
+          <a class="btn btn-line" href={CONTACT_HREF}>Talk to us</a>
+        </div>
+      </div>
     </div>
-    <ul class="plan-notes mono">{PRICING_NOTES.map((n) => <li>{n}</li>)}</ul>
   </div>
 </section>
 
@@ -115,25 +121,17 @@ const externalAttrs = DEMO_IS_EXTERNAL ? { target: "_blank", rel: "noopener" } :
   .p-v { color: var(--ink-2); font-size: 15px; }
 
   .pricing { padding-top: 0; }
-  .plans { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
-  .plan { display: grid; grid-template-rows: auto 1fr auto; gap: 22px; padding: clamp(22px, 3vw, 32px); border: 1px solid var(--line); border-radius: 20px; background: var(--paper); }
-  .plan header { display: grid; gap: 10px; }
-  .plan header p { margin: 0; color: var(--ink-2); }
-  .plan-name { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
-  .plan-price { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-  .amount { font-family: var(--serif); font-size: 46px; line-height: 1; }
-  .unit { color: var(--ink-2); font-size: 14px; }
-  .plan ul { list-style: none; margin: 0; padding: 18px 0 0; border-top: 1px solid var(--line); display: grid; gap: 10px; align-content: start; font-size: 15px; }
-  .plan li { padding-left: 22px; position: relative; }
-  .plan li::before { content: "✓"; position: absolute; left: 0; font-family: var(--mono); font-size: 13px; color: var(--ink); }
-  .plan .btn { justify-self: start; }
-  .plan.featured { background: var(--night) var(--grain); color: #f1f1ec; border-color: var(--night); box-shadow: 0 30px 60px -30px rgba(0,0,0,.45); }
-  .plan.featured header p, .plan.featured .unit, .plan.featured .plan-name { color: #c4c4bc; }
-  .plan.featured ul { border-top-color: #34342f; color: #e6e6df; }
-  .plan.featured li::before { color: var(--signal); }
+  .offer { display: grid; gap: 28px; padding: clamp(24px, 4vw, 40px); border: 1px solid var(--line); border-radius: 20px; background: var(--paper); }
+  .modules { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 24px; align-items: center; }
+  .module { display: grid; gap: 8px; }
+  .module p { margin: 0; font-family: var(--serif); font-size: clamp(22px, 2.4vw, 28px); line-height: 1.2; }
+  .module-name { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+  .join { font-family: var(--serif); font-size: 40px; color: var(--ink-2); }
+  .offer-foot { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; justify-content: space-between; padding-top: 22px; border-top: 1px solid var(--line); }
+  .offer-ctas { display: flex; flex-wrap: wrap; gap: 10px; }
   .btn-signal { background: var(--signal); color: var(--ink); }
   .btn-signal:hover { background: #e6ff7a; }
-  .plan-notes { list-style: none; margin: 22px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 24px; justify-content: center; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+  .plan-notes { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 24px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
 
   .contact-sec { border-top: 1px solid var(--line); }
   .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -143,18 +141,16 @@ const externalAttrs = DEMO_IS_EXTERNAL ? { target: "_blank", rel: "noopener" } :
   .contact-card p { margin: 0; color: var(--ink-2); max-width: 44ch; }
 
   @media (max-width: 1100px) {
-    .plans { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 860px) {
     .contact-grid { grid-template-columns: minmax(0, 1fr); }
-    .plans { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .mon-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 24px; }
     .mon-col:nth-child(3) { border-left: 0; padding-left: 0; }
     .principles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .principle:nth-child(3) { border-left: 0; padding-left: 0; }
   }
   @media (max-width: 520px) {
-    .plans { grid-template-columns: minmax(0, 1fr); }
+    .modules { grid-template-columns: minmax(0, 1fr); gap: 12px; }
     .mon-grid { grid-template-columns: minmax(0, 1fr); }
     .mon-col + .mon-col { border-left: 0; padding-left: 0; }
     .principles { grid-template-columns: minmax(0, 1fr); }
