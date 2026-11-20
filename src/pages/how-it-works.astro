@@ -1,0 +1,27 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import PageHero from "../components/PageHero.astro";
+import HowItWorks from "../components/HowItWorks.astro";
+import Engines from "../components/Engines.astro";
+import CompareMatrix from "../components/CompareMatrix.astro";
+import Pilot from "../components/Pilot.astro";
+import Footer from "../components/Footer.astro";
+---
+<Base
+  title="How Openbox works: digital twin and site surveillance"
+  description="Headcams, drones and site cameras feed one record of your construction site: a digital twin of what is built, and surveillance that keeps it safe and secure."
+>
+  <Nav overlay />
+  <main>
+    <PageHero eyebrow="How it works">
+      <Fragment slot="title">Capture once.<br /><em>Know everything.</em></Fragment>
+      <Fragment slot="lede">Headcams, drones and site cameras feed one record of your site: a digital twin of what is built, and surveillance that keeps it safe and secure.</Fragment>
+    </PageHero>
+    <HowItWorks />
+    <Engines />
+    <CompareMatrix />
+    <Pilot />
+  </main>
+  <Footer />
+</Base>

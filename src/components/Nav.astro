@@ -1,86 +1,86 @@
 ---
-import { PRODUCTS } from "../data/products";
 import { DEMO_HREF, DEMO_IS_EXTERNAL } from "../data/site";
+import { PILLARS } from "../data/product";
 
+interface Props {
+  /** Transparent over a dark hero until the page scrolls. */
+  overlay?: boolean;
+}
+const { overlay = false } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const externalAttrs = DEMO_IS_EXTERNAL ? { target: "_blank", rel: "noopener" } : {};
 const links = [
-  { href: `${base}#how-it-works`, label: "How it works" },
-  { href: `${base}#pricing`, label: "Pricing" },
+  { href: `${base}how-it-works/`, label: "How it works" },
   { href: `${base}about/`, label: "About" },
 ];
 ---
-<div class="announce">
-  <div class="wrap announce-row">
-    <a class="df" href="https://dragonfruit.ai/" target="_blank" rel="noopener">
-      <img src={`${base}images/brand/dragonfruit-logo.svg`} alt="Dragonfruit AI" width="112" height="20" />
-      <span>Openbox is a Dragonfruit AI company</span>
-    </a>
-    <span class="sep" aria-hidden="true"></span>
-    <a class="pilot" href={DEMO_HREF} {...externalAttrs}><span class="signal-dot"></span>Free 30-day pilot on a live project →</a>
+<header class:list={["top", { "is-overlay": overlay }]} data-nav>
+  <div class="announce">
+    <div class="wrap announce-row">
+      <a class="df" href="https://dragonfruit.ai/" target="_blank" rel="noopener">
+        <img src={`${base}images/brand/dragonfruit-logo.svg`} alt="Dragonfruit AI" width="112" height="20" />
+        <span>Openbox is a Dragonfruit AI company</span>
+      </a>
+      <span class="sep" aria-hidden="true"></span>
+      <a class="pilot" href={DEMO_HREF} {...externalAttrs}><span class="signal-dot"></span>Free 30-day pilot on a live project →</a>
+    </div>
   </div>
-</div>
-<header class="nav">
-  <div class="wrap nav-row">
-    <a class="brand" href={base} aria-label="Openbox home">
-      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
-        <rect width="32" height="32" rx="7" fill="#111110" />
-        <path d="M8 12.5 16 8l8 4.5v9L16 26l-8-4.5z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" />
-        <path d="M8 12.5 16 17l8-4.5" fill="none" stroke="#d9ff42" stroke-width="2" stroke-linejoin="round" />
-      </svg>
-      <span>Openbox</span>
-    </a>
-
-    <nav class="links" aria-label="Main">
-      <div class="dd" data-dropdown>
-        <button class="dd-trigger" type="button" aria-expanded="false" aria-controls="product-menu">
-          Product <span class="chev" aria-hidden="true">▾</span>
-        </button>
-        <div class="dd-panel" id="product-menu">
-          <div class="dd-grid">
-            {PRODUCTS.map((p) => (
-              <div class="dd-col">
-                <a class="dd-head" href={`${base}#${p.anchor}`}>
-                  <span class="eyebrow">{p.category}</span>
-                  <span class="dd-name">{p.name}</span>
-                  <span class="dd-sum">{p.summary}</span>
-                </a>
-                <ul>
-                  {p.modules.map((m) => (
-                    <li>
-                      <a href={`${base}#${p.anchor}`}>
-                        <span class="m-name">{m.name}</span>
-                        <span class="m-detail">{m.detail}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+  <div class="nav">
+    <div class="wrap nav-row">
+      <a class="brand" href={base} aria-label="Openbox home">
+        <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
+          <rect width="32" height="32" rx="7" fill="#111110" />
+          <path d="M8 12.5 16 8l8 4.5v9L16 26l-8-4.5z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" />
+          <path d="M8 12.5 16 17l8-4.5" fill="none" stroke="#d9ff42" stroke-width="2" stroke-linejoin="round" />
+        </svg>
+        <span>Openbox</span>
+      </a>
+      <nav class="links" aria-label="Main">
+        <div class="dd" data-dropdown>
+          <button class="dd-trigger" type="button" aria-expanded="false" aria-controls="product-menu">
+            Product <span class="chev" aria-hidden="true">▾</span>
+          </button>
+          <div class="dd-panel" id="product-menu">
+            <a class="dd-head" href={`${base}#product`}>
+              <span class="eyebrow">Construction intelligence</span>
+              <span class="dd-sum">One camera network for every job on site.</span>
+            </a>
+            {PILLARS.map((p) => (
+              <a class="dd-item" href={`${base}#${p.id}`}>
+                <span class="dd-name">{p.name}</span>
+                <span class="dd-line">{p.line}</span>
+              </a>
             ))}
           </div>
-          <a class="dd-foot mono" href={`${base}#platform`}>One camera network · Two jobs · Built on Dragonfruit AI →</a>
         </div>
+        {links.map((l) => <a href={l.href}>{l.label}</a>)}
+      </nav>
+      <div class="nav-actions">
+        <a class="btn nav-cta" href={DEMO_HREF} {...externalAttrs}>Book a demo</a>
+        <details class="mobile">
+          <summary aria-label="Open menu">Menu</summary>
+          <div class="mobile-panel">
+            <a href={`${base}#product`}>Product</a>
+            {links.map((l) => <a href={l.href}>{l.label}</a>)}
+            <a class="m-cta" href={DEMO_HREF} {...externalAttrs}>Book a demo</a>
+          </div>
+        </details>
       </div>
-      {links.map((l) => <a href={l.href}>{l.label}</a>)}
-    </nav>
-
-    <div class="nav-actions">
-      <a class="btn btn-ink nav-cta" href={DEMO_HREF} {...externalAttrs}>Book a demo</a>
-      <details class="mobile">
-        <summary aria-label="Open menu">Menu</summary>
-        <div class="mobile-panel">
-          {PRODUCTS.map((p) => <a href={`${base}#${p.id}`}><b>{p.name}</b><span>{p.category}</span></a>)}
-          {links.map((l) => <a href={l.href}>{l.label}</a>)}
-          <a class="m-cta" href={DEMO_HREF} {...externalAttrs}>Book a demo</a>
-        </div>
-      </details>
     </div>
   </div>
 </header>
 
 <script>
+  const top = document.querySelector<HTMLElement>("[data-nav]");
+  if (top) {
+    const update = () => top.classList.toggle("is-solid", window.scrollY > 24);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+  }
+
   document.querySelectorAll<HTMLElement>("[data-dropdown]").forEach((dd) => {
-    const trigger = dd.querySelector<HTMLButtonElement>(".dd-trigger")!;
+    const trigger = dd.querySelector<HTMLButtonElement>(".dd-trigger");
+    if (!trigger) return;
     const setOpen = (open: boolean) => {
       dd.classList.toggle("is-open", open);
       trigger.setAttribute("aria-expanded", String(open));
@@ -99,7 +99,12 @@ const links = [
 </script>
 
 <style>
-  .announce { background: var(--night); color: #d8d8d1; font-size: 13.5px; }
+  .top { position: relative; z-index: 30; }
+  .top.is-overlay { position: fixed; left: 0; right: 0; }
+
+  .announce { background: var(--night); color: #d8d8d1; font-size: 13.5px; max-height: 80px; overflow: hidden; transition: max-height .3s ease, opacity .2s ease; }
+  .is-overlay.is-solid .announce { max-height: 0; opacity: 0; border-bottom-width: 0; }
+  .is-overlay .announce { background: rgba(8, 8, 7, .55); border-bottom: 1px solid rgba(255,255,255,.06); }
   .announce-row { display: flex; gap: 14px; align-items: center; justify-content: center; padding-block: 9px; flex-wrap: wrap; text-align: center; }
   .announce a { text-decoration: none; display: inline-flex; align-items: center; gap: 10px; color: #d8d8d1; }
   .announce a:hover { color: #fff; }
@@ -109,58 +114,55 @@ const links = [
   .pilot { font-weight: 600; color: #fff !important; }
 
   .nav {
-    position: sticky; top: 0; z-index: 30;
-    background: rgba(255, 255, 255, .86);
+    background: rgba(255, 255, 255, .88);
     backdrop-filter: saturate(1.4) blur(12px);
     -webkit-backdrop-filter: saturate(1.4) blur(12px);
     border-bottom: 1px solid var(--line);
+    transition: background .25s ease, border-color .25s ease;
   }
-  .nav-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 12px; }
-  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 650; font-size: 19px; letter-spacing: -.01em; }
-  .links { display: flex; gap: 28px; align-items: center; font-size: 15px; }
+  .is-overlay .nav { background: transparent; border-color: transparent; color: #fff; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .is-overlay.is-solid .nav { background: rgba(12, 12, 11, .72); border-color: rgba(255,255,255,.08); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+
+  .nav-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 14px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 650; font-size: 19px; letter-spacing: -.01em; color: inherit; }
+  .is-overlay .brand rect { stroke: rgba(255,255,255,.18); stroke-width: 1; }
+  .links { display: flex; gap: 32px; align-items: center; font-size: 15px; }
   .links > a, .dd-trigger { text-decoration: none; color: var(--ink-2); }
   .links > a:hover, .dd-trigger:hover, .dd.is-open .dd-trigger { color: var(--ink); }
+  .is-overlay .links > a, .is-overlay .dd-trigger { color: rgba(255,255,255,.72); }
+  .is-overlay .links > a:hover, .is-overlay .dd-trigger:hover, .is-overlay .dd.is-open .dd-trigger { color: #fff; }
   .nav-actions { display: flex; align-items: center; gap: 10px; }
-  .nav-cta { padding: 10px 14px; font-size: 14px; }
+  .nav-cta { padding: 10px 15px; font-size: 14px; background: var(--ink); color: var(--paper); }
+  .is-overlay .nav-cta { background: #fff; color: var(--ink); }
 
   .dd { position: relative; }
   .dd-trigger { font: inherit; background: none; border: 0; padding: 8px 0; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
   .chev { font-size: 11px; transition: transform .2s ease; }
   .dd.is-open .chev { transform: rotate(180deg); }
   .dd-panel {
-    position: absolute; left: 50%; top: calc(100% + 10px);
-    width: min(760px, calc(100vw - 40px));
-    transform: translate(-38%, 6px); opacity: 0; visibility: hidden;
+    position: absolute; left: -18px; top: calc(100% + 12px); width: 340px;
+    opacity: 0; visibility: hidden; transform: translateY(6px);
     transition: opacity .18s ease, transform .18s ease, visibility .18s;
-    background: var(--paper); border: 1px solid var(--line); border-radius: 16px;
-    box-shadow: 0 30px 60px -30px rgba(0,0,0,.35);
-    padding: 10px;
+    background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,.45); padding: 8px; display: grid;
   }
-  .dd-panel::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 14px; }
-  .dd.is-open .dd-panel { opacity: 1; visibility: visible; transform: translate(-38%, 0); }
-  .dd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  .dd-col { padding: 14px; border-radius: 12px; }
-  .dd-col:first-child { background: var(--stone) var(--grain); }
-  .dd-head { display: grid; gap: 4px; text-decoration: none; padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
-  .dd-name { font-family: var(--serif); font-size: 26px; line-height: 1.1; }
-  .dd-sum { font-size: 13.5px; color: var(--ink-2); }
-  .dd-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
-  .dd-col li a { display: grid; gap: 1px; padding: 7px 8px; border-radius: 8px; text-decoration: none; }
-  .dd-col li a:hover { background: rgba(0,0,0,.045); }
-  .m-name { font-size: 14px; font-weight: 600; color: var(--ink); }
-  .m-detail { font-size: 12.5px; color: var(--ink-3); }
-  .dd-foot { display: block; margin-top: 6px; padding: 10px 14px; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); text-decoration: none; border-radius: 10px; }
-  .dd-foot:hover { background: var(--stone); color: var(--ink); }
+  .dd-panel::before { content: ""; position: absolute; left: 0; right: 0; top: -16px; height: 16px; }
+  .dd.is-open .dd-panel { opacity: 1; visibility: visible; transform: none; }
+  .dd-head { display: grid; gap: 4px; padding: 12px 12px 14px; margin-bottom: 4px; border-bottom: 1px solid var(--line); text-decoration: none; }
+  .dd-sum { font-family: var(--serif); font-size: 20px; line-height: 1.15; }
+  .dd-item { display: grid; gap: 2px; padding: 10px 12px; border-radius: 10px; text-decoration: none; }
+  .dd-item:hover { background: var(--stone); }
+  .dd-name { font-size: 14.5px; font-weight: 600; }
+  .dd-line { font-size: 13px; color: var(--ink-3); }
 
   .mobile { display: none; position: relative; }
   .mobile summary { list-style: none; cursor: pointer; padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: 10px; font-size: 14px; }
+  .is-overlay .mobile summary { border-color: rgba(255,255,255,.3); }
   .mobile summary::-webkit-details-marker { display: none; }
-  .mobile-panel { position: absolute; right: 0; top: calc(100% + 8px); width: min(300px, calc(100vw - 40px)); background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 8px; display: grid; box-shadow: 0 30px 60px -30px rgba(0,0,0,.35); }
-  .mobile-panel a { display: grid; padding: 10px 12px; border-radius: 8px; text-decoration: none; font-size: 15px; }
-  .mobile-panel a span { font-size: 12.5px; color: var(--ink-3); }
+  .mobile-panel { position: absolute; right: 0; top: calc(100% + 8px); width: min(260px, calc(100vw - 40px)); background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; padding: 8px; display: grid; box-shadow: 0 30px 60px -30px rgba(0,0,0,.35); }
+  .mobile-panel a { padding: 10px 12px; border-radius: 8px; text-decoration: none; font-size: 15px; }
   .mobile-panel a:hover { background: var(--stone); }
   .mobile-panel .m-cta { margin-top: 6px; background: var(--ink); color: var(--paper); text-align: center; font-weight: 600; }
-  .mobile-panel .m-cta:hover { background: #2a2a28; }
 
   @media (max-width: 860px) {
     .links { display: none; }
@@ -168,6 +170,8 @@ const links = [
     .sep { display: none; }
   }
   @media (max-width: 620px) {
-    .nav-cta, .pilot { display: none; }
+    .nav-cta, .announce .pilot { display: none; }
+    .announce { font-size: 12px; }
+    .df img { height: 16px; }
   }
 </style>
