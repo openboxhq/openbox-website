@@ -1,0 +1,143 @@
+---
+import { DAYS, PILLARS } from "../data/product";
+import type { StoryConfig } from "../scripts/story";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const LAYERS = ["Footage", "Drawing", "Insights"];
+const config: StoryConfig = {
+  mediaBase: `${base}media/`,
+  heroCycle: PILLARS.map((p) => [p.id === "progress" ? "hero" : p.media, p.id]),
+  chapters: PILLARS.map((p) => ({ clip: p.media, source: p.source, sheet: p.sheet, drawing: p.drawing, tags: p.tags, readouts: p.readouts })),
+};
+const CHAPTERS_START = 0.42;
+const anchorAt = (i: number) => CHAPTERS_START + ((1 - CHAPTERS_START) / PILLARS.length) * (i + 0.3);
+---
+<section class="story" id="product" data-story data-config={JSON.stringify(config)}>
+  {PILLARS.map((p, i) => <span class="st-anchor" id={p.id} style={`top: calc(${anchorAt(i)} * (var(--story-h) - 100svh))`}></span>)}
+  <div class="st-pin" data-pin>
+    <canvas aria-hidden="true"></canvas>
+
+    <div class="st-hero" data-hero>
+      <div class="st-hero-copy">
+        <p class="eyebrow st-kicker">Construction intelligence</p>
+        <h1 class="display">Rewind the site<br /><em>to any day.</em></h1>
+        <p class="st-lede">Visual change control for the site itself. Drones, site walks and site cameras keep every day on one timeline.</p>
+        <a class="st-pilot" href="#pilot">Free 30-day pilot →</a>
+      </div>
+      <ol class="st-player mono" aria-label="What Openbox covers">
+        {PILLARS.map((p) => (
+          <li data-pillar={p.id}>
+            <span class="bar"><i></i></span>
+            <span class="pl-name">{p.name}</span>
+            <span class="pl-src">{p.capture}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <div class="st-manifesto" data-manifesto>
+      <p class="display">A building changes every day. <em>Its record should keep up.</em></p>
+    </div>
+
+    {PILLARS.map((p, i) => (
+      <article class="st-chapter" data-chapter>
+        <p class="ch-k mono"><span>0{i + 1}</span>{p.name}<span class="ch-src">{p.capture}</span></p>
+        <h2 class="display">{p.title}</h2>
+        <p class="ch-detail">{p.detail}</p>
+        <ul class="ch-specs mono">
+          {p.specs.map((s) => <li>{s}</li>)}
+        </ul>
+        {i === PILLARS.length - 1 && <a class="ch-more" href={`${base}how-it-works/`}>See how it works →</a>}
+      </article>
+    ))}
+
+    <div class="st-controls mono" data-controls>
+      <div class="ctl-row">
+        <div class="ctl-layers" role="group" aria-label="Show one layer">
+          {LAYERS.map((l, i) => <button type="button" data-layer={i} aria-pressed="false">{l}</button>)}
+        </div>
+        <p class="ctl-readout" data-readout aria-live="polite"></p>
+      </div>
+      <div class="ctl-days" role="group" aria-label="Pick a day">
+        {DAYS.map((d, i) => <button type="button" data-day={i} aria-pressed={i === DAYS.length - 1 ? "true" : "false"}>{d}</button>)}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { startStory, type StoryConfig } from "../scripts/story";
+  const root = document.querySelector<HTMLElement>("[data-story]");
+  if (root?.dataset.config) startStory(root, JSON.parse(root.dataset.config) as StoryConfig);
+</script>
+
+<style>
+  .story { --story-h: 640svh; position: relative; height: var(--story-h); background: #0a0a09; }
+  .st-anchor { position: absolute; left: 0; width: 1px; height: 1px; scroll-margin-top: 0; }
+  .st-pin { position: sticky; top: 0; height: 100svh; overflow: hidden; color: #fff; }
+  .st-pin canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  .st-hero { position: absolute; inset: var(--card-top, 100px) 12px 12px; display: grid; align-content: center; padding: 0 clamp(20px, 6vw, 96px); will-change: opacity, transform; }
+  .st-kicker { color: rgba(255,255,255,.72); margin: 0 0 22px; }
+  .st-hero h1 { font-size: clamp(54px, 8.6vw, 128px); line-height: .94; margin: 0 0 26px; }
+  .st-hero h1 em { color: rgba(255,255,255,.66); }
+  .st-lede { font-size: clamp(17px, 1.6vw, 21px); color: rgba(255,255,255,.84); max-width: 34ch; margin: 0 0 30px; text-wrap: pretty; }
+  .st-pilot { justify-self: start; color: #fff; text-decoration: none; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,.55); padding-bottom: 3px; }
+  .st-pilot:hover { border-color: #fff; }
+
+  .st-player { position: absolute; left: clamp(20px, 6vw, 96px); right: clamp(20px, 6vw, 96px); bottom: 28px; margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+  .st-player li { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; row-gap: 10px; color: rgba(255,255,255,.5); transition: color .3s ease; }
+  .st-player .bar { grid-column: 1 / -1; height: 2px; background: rgba(255,255,255,.26); overflow: hidden; }
+  .st-player .bar i { display: block; height: 100%; width: 100%; background: #fff; transform: scaleX(0); transform-origin: left; }
+  .st-player li.is-on { color: #fff; }
+  .st-player li.is-on .bar i { animation: st-fill 4.2s linear forwards; }
+  @keyframes st-fill { to { transform: scaleX(1); } }
+  .pl-src { justify-self: end; color: rgba(255,255,255,.5); }
+
+  .st-manifesto { position: absolute; left: 0; right: 0; bottom: 7vh; padding-inline: 24px; text-align: center; opacity: 0; }
+  .st-manifesto p { font-size: clamp(30px, 4.2vw, 60px); line-height: 1.02; max-width: 20ch; margin: 0 auto; }
+  .st-manifesto em { color: rgba(255,255,255,.5); }
+
+  .st-chapter { position: absolute; left: max(20px, calc((100vw - 1120px) / 2)); top: 50%; width: min(40vw, 440px); margin-top: -230px; opacity: 0; }
+  .ch-k { display: flex; gap: 14px; margin: 0 0 20px; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: #fff; }
+  .ch-k span:first-child { color: rgba(255,255,255,.42); }
+  .ch-src { margin-left: auto; color: rgba(255,255,255,.5); }
+  .st-chapter h2 { font-size: clamp(36px, 4.4vw, 62px); line-height: 1; margin: 0 0 20px; }
+  .ch-detail { margin: 0 0 28px; color: rgba(255,255,255,.72); text-wrap: pretty; }
+  .ch-specs { list-style: none; margin: 0; padding: 0; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.64); }
+  .ch-specs li { padding: 11px 0; border-top: 1px solid rgba(255,255,255,.14); }
+  .ch-specs li:last-child { border-bottom: 1px solid rgba(255,255,255,.14); }
+  .ch-more { display: inline-block; margin-top: 26px; color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.5); padding-bottom: 2px; font-size: 15px; }
+
+  .st-controls { position: absolute; opacity: 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+  .ctl-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+  .ctl-layers { display: inline-flex; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; padding: 3px; }
+  .st-controls button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: rgba(255,255,255,.62); background: none; border: 0; cursor: pointer; }
+  .ctl-layers button { padding: 7px 12px; border-radius: 999px; }
+  .ctl-layers button:hover { color: #fff; }
+  .ctl-layers button[aria-pressed="true"] { background: #fff; color: #0a0a09; }
+  .ctl-readout { margin: 0; color: rgba(255,255,255,.78); text-align: right; }
+  .ctl-days { display: grid; grid-template-columns: repeat(7, 1fr); border-top: 1px solid rgba(255,255,255,.3); }
+  .ctl-days button { position: relative; padding: 14px 0 4px; text-align: center; }
+  .ctl-days button::before { content: ""; position: absolute; left: 50%; top: -4px; width: 7px; height: 7px; margin-left: -3.5px; border-radius: 50%; background: #0a0a09; border: 1px solid rgba(255,255,255,.5); transition: transform .2s ease, background .2s ease; }
+  .ctl-days button:hover { color: #fff; }
+  .ctl-days button[aria-pressed="true"] { color: #fff; }
+  .ctl-days button[aria-pressed="true"]::before { background: #fff; border-color: #fff; transform: scale(1.5); box-shadow: 0 0 0 4px rgba(255,255,255,.18); }
+
+  @media (max-width: 860px) {
+    .st-hero { padding-inline: 20px; align-content: start; padding-top: 12svh; }
+    .st-player { left: 20px; right: 20px; gap: 8px; font-size: 9.5px; letter-spacing: .08em; }
+    .st-player li { grid-template-columns: 1fr; row-gap: 6px; }
+    .pl-src { justify-self: start; }
+    .st-manifesto { bottom: 9svh; }
+    .st-chapter { left: 20px; right: 20px; width: auto; top: auto; bottom: 3svh; margin-top: 0; }
+    .st-chapter h2 { font-size: clamp(28px, 7.4vw, 40px); margin-bottom: 12px; }
+    .ch-k { margin-bottom: 12px; }
+    .ch-detail { font-size: 15px; margin-bottom: 0; }
+    .ch-specs { display: none; }
+    .ch-more { margin-top: 14px; }
+    .ctl-readout { display: none; }
+    .ctl-row { margin-bottom: 10px; }
+    .st-controls { font-size: 9.5px; }
+  }
+</style>

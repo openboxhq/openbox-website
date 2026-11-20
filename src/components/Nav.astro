@@ -5,8 +5,10 @@ import { PILLARS } from "../data/product";
 interface Props {
   /** Transparent over a dark hero until the page scrolls. */
   overlay?: boolean;
+  /** Follows the page: the story sets html[data-nav] to "light" or "dark" as its ground changes. */
+  adaptive?: boolean;
 }
-const { overlay = false } = Astro.props;
+const { overlay = false, adaptive = false } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const externalAttrs = DEMO_IS_EXTERNAL ? { target: "_blank", rel: "noopener" } : {};
 const links = [
@@ -14,7 +16,7 @@ const links = [
   { href: `${base}about/`, label: "About" },
 ];
 ---
-<header class:list={["top", { "is-overlay": overlay }]} data-nav>
+<header class:list={["top", { "is-overlay": overlay, "is-adaptive": adaptive }]} data-nav>
   <div class="announce">
     <div class="wrap announce-row">
       <a class="df" href="https://dragonfruit.ai/" target="_blank" rel="noopener">
@@ -154,6 +156,14 @@ const links = [
   .dd-item:hover { background: var(--stone); }
   .dd-name { font-size: 14.5px; font-weight: 600; }
   .dd-line { font-size: 13px; color: var(--ink-3); }
+
+  :global(html[data-nav="light"]) .is-adaptive .nav { background: rgba(255,255,255,.9); border-color: transparent; color: var(--ink); backdrop-filter: saturate(1.4) blur(12px); -webkit-backdrop-filter: saturate(1.4) blur(12px); }
+  :global(html[data-nav="light"]) .is-adaptive.is-solid .nav { border-color: var(--line); }
+  :global(html[data-nav="light"]) .is-adaptive .links > a, :global(html[data-nav="light"]) .is-adaptive .dd-trigger { color: var(--ink-2); }
+  :global(html[data-nav="light"]) .is-adaptive .links > a:hover, :global(html[data-nav="light"]) .is-adaptive .dd-trigger:hover { color: var(--ink); }
+  :global(html[data-nav="light"]) .is-adaptive .nav-cta { background: var(--ink); color: var(--paper); }
+  :global(html[data-nav="light"]) .is-adaptive .mobile summary { border-color: var(--line-strong); }
+  :global(html[data-nav="light"]) .is-adaptive .announce { background: var(--night); }
 
   .mobile { display: none; position: relative; }
   .mobile summary { list-style: none; cursor: pointer; padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: 10px; font-size: 14px; }
