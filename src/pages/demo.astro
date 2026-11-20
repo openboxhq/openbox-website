@@ -4,17 +4,18 @@ import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import { FORM_ENDPOINT } from "../data/site";
 
+/** The ids are the codes the inbound-form script accepts; only the labels follow the product names. */
 const interests = [
-  { id: "both", label: "Openbox (Twin + Watch)" },
-  { id: "twin", label: "Twin · digital twin and progress" },
-  { id: "watch", label: "Watch · jobsite monitoring" },
+  { id: "both", label: "All of Openbox" },
+  { id: "twin", label: "Progress · the dated site record" },
+  { id: "watch", label: "Safety and security · site monitoring" },
   { id: "portfolio", label: "Portfolio · 5+ projects" },
   { id: "company", label: "Partnership, press or careers" },
 ];
 const projectCounts = ["1", "2–5", "6–20", "20+"];
 const steps = [
   { k: "Within one business day", v: "We reply to set up a 30-minute call." },
-  { k: "On the call", v: "We walk through Twin and Watch on a sample project and look at your site." },
+  { k: "On the call", v: "We walk through progress, safety and security on a sample project and look at your site." },
   { k: "Start a pilot", v: "Connect one live project. Our team does the setup, and we agree on pricing together." },
 ];
 ---
@@ -29,7 +30,7 @@ const steps = [
         <div class="demo-copy">
           <p class="eyebrow">Book a demo</p>
           <h1 class="display">See Openbox on your jobsite.</h1>
-          <p class="lede">Tell us a little about your projects. We will set up a call and show you Openbox Twin and Openbox Watch on a project like yours.</p>
+          <p class="lede">Tell us a little about your projects. We will set up a call and show you Openbox on a project like yours.</p>
           <ol class="steps">
             {steps.map((s, i) => (
               <li>

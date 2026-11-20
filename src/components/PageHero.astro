@@ -1,14 +1,14 @@
 ---
 interface Props {
   eyebrow: string;
-  /** Basename of a film still in public/media, shown behind the title. */
+  /** Basename of a wide still in public/media (<name>-wide.webp), shown behind the title. */
   image?: string;
 }
 const { eyebrow, image } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 ---
 <section class="page-hero">
-  <div class="ph-card" style={image ? `--ph-image: url(${base}media/${image}.jpg)` : undefined}>
+  <div class="ph-card" style={image ? `--ph-image: url(${base}media/${image}-wide.webp)` : undefined}>
     <div class="wrap ph-copy">
       <p class="eyebrow ph-k">{eyebrow}</p>
       <h1 class="display"><slot name="title" /></h1>

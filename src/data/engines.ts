@@ -4,22 +4,22 @@ export interface Capability {
 }
 
 export interface Engine {
-  id: "twin" | "watch";
+  id: "progress" | "safety" | "security";
   label: string;
   title: string;
   lede: string;
   capabilities: Capability[];
 }
 
-/** The two systems Openbox runs on the Dragonfruit AI platform. */
+/** The three products Openbox runs on the Dragonfruit AI platform, in detail. */
 export const ENGINES: Engine[] = [
   {
-    id: "twin",
-    label: "Digital twin",
+    id: "progress",
+    label: "Progress",
     title: "The site as built, every day.",
-    lede: "Every capture lands on your plans and your schedule, so the record of what is built is never a week old.",
+    lede: "Every capture lands on your drawings and your schedule, so the record of what is built is never a week old.",
     capabilities: [
-      { name: "One timeline", detail: "Site cameras, headcams, drones and phone video, placed by date and location." },
+      { name: "One timeline", detail: "Drones, site walks, site cameras and phone video, placed by date and location." },
       { name: "2D plan view", detail: "Every capture pinned to your floor plans. Step back to any day." },
       { name: "3D model", detail: "The building in 3D from plans and drone captures. BIM optional, in early access." },
       { name: "Milestones", detail: "Status by zone and trade. Detected by AI, verified by a reviewer." },
@@ -28,16 +28,25 @@ export const ENGINES: Engine[] = [
     ],
   },
   {
-    id: "watch",
-    label: "Surveillance and security",
-    title: "The site watched, day and night.",
-    lede: "The same cameras that record progress keep people safe by day and the site secure after hours.",
+    id: "safety",
+    label: "Safety",
+    title: "People safe, all day.",
+    lede: "Every walk and every camera is checked for PPE and for people where they should not be. Each flag comes with the clip and the place on the plan.",
     capabilities: [
-      { name: "Safety and PPE", detail: "Hard hats, hi-vis and harnesses. Falls, open edges, fire and smoke." },
+      { name: "PPE", detail: "Hard hats, hi-vis and harnesses." },
+      { name: "Hazards", detail: "Falls, open edges, fire and smoke." },
       { name: "Exclusion zones", detail: "People inside crane swing and heavy-equipment zones." },
-      { name: "Gate and deliveries", detail: "Plate reading at the gate. Deliveries matched to the schedule." },
       { name: "Crew and equipment", detail: "Headcount by shift. Equipment use and idle time." },
-      { name: "After-hours security", detail: "Intrusion, theft and loitering, reviewed by a person before you are alerted." },
+    ],
+  },
+  {
+    id: "security",
+    label: "Security",
+    title: "The site secure, every night.",
+    lede: "The cameras that record progress by day watch the site after hours. A person reviews each alert before it reaches you.",
+    capabilities: [
+      { name: "After-hours alerts", detail: "Intrusion, theft and loitering, reviewed by a person before you are alerted." },
+      { name: "Gate and deliveries", detail: "Plate reading at the gate. Deliveries matched to the schedule." },
       { name: "Live view and evidence", detail: "Every camera, time-lapse and search. Clips for claims and reports." },
     ],
   },
@@ -54,7 +63,7 @@ export interface CompareRow {
 
 /** Typical coverage by product category, not by named vendor. */
 export const COMPARE: CompareRow[] = [
-  { capability: "Headcam and walk capture", walkTools: "full", cameraVendors: "none", openbox: "full" },
+  { capability: "Site walk capture", walkTools: "full", cameraVendors: "none", openbox: "full" },
   { capability: "Drone capture", walkTools: "partial", cameraVendors: "none", openbox: "full" },
   { capability: "Fixed site cameras", walkTools: "none", cameraVendors: "full", openbox: "full" },
   { capability: "2D plan view with history", walkTools: "full", cameraVendors: "none", openbox: "full" },

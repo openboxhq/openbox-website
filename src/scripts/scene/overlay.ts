@@ -31,10 +31,10 @@ const fixed = (label: string) => () => label;
 const TAGS: readonly Tag[] = [
   { at: 3, life: 4.5, text: fixed("SITE CAM 04 · LIVE"), anchor: () => GATE_CAM_TOP },
   { at: 9.5, life: 5, text: (t) => `DRONE · SURVEY ${surveyPercent(t)}%`, anchor: droneAt },
-  { at: 18.5, life: 5, text: fixed("HEADCAM · L1 CAPTURE"), anchor: headcamHead },
+  { at: 18.5, life: 5, text: fixed("SITE WALK · L1 CAPTURE"), anchor: headcamHead },
   { at: 25, life: 4.8, text: fixed("GATE · TRUCK IN"), anchor: truckTop },
   { at: 29.5, life: 4.5, text: fixed("PERSON · PPE OK"), anchor: () => crewHead(0), frame: true },
-  { at: 34.5, life: 5, text: fixed("HEADCAM · L1 CAPTURE"), anchor: headcamHead },
+  { at: 34.5, life: 5, text: fixed("SITE WALK · L1 CAPTURE"), anchor: headcamHead },
   { at: 36, life: 5, text: (t) => `DRONE · SURVEY ${surveyPercent(t)}%`, anchor: droneAt },
   { at: 44, life: 4.5, text: fixed("PERSON · PPE OK"), anchor: () => crewHead(1), frame: true },
   { at: 51.5, life: 4, text: fixed("PERSON · NO HARD HAT"), anchor: () => crewHead(0), frame: true, alert: true },
@@ -100,7 +100,7 @@ export function drawTimeline(p: Painter): void {
   const alpha = Math.min(ease(t / 1.5), 1 - ease((t - 56.5) / 3));
   const at = (time: number) => lerp(x0, x1, time / LOOP_S);
   const xp = at(t);
-  const lanes = ["SITE CAM", "HEADCAM", "DRONE"].map((label, i) => ({ label, y: y0 + i * LANE_GAP }));
+  const lanes = ["SITE CAM", "SITE WALK", "DRONE"].map((label, i) => ({ label, y: y0 + i * LANE_GAP }));
   const recordY = y0 + 2 * LANE_GAP + RECORD_GAP;
 
   ctx.font = HUD_FONT; ctx.textAlign = "right"; ctx.lineWidth = 1;

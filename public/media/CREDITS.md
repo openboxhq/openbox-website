@@ -6,8 +6,8 @@ free for commercial use, edits allowed, no credit required. Downloaded on 2026-1
 
 | Files | Clip | Creator | Source |
 |---|---|---|---|
-| hero, hero-sm | Drone Shot of the Construction Site | K | https://www.pexels.com/video/drone-shot-of-the-construction-site-4404097/ |
-| progress | Aerial View of Construction Site with Steel Frame | David Pickup | https://www.pexels.com/video/aerial-view-of-construction-site-with-steel-frame-33893697/ |
+| hero, hero-sm, hero-wide | Drone Shot of the Construction Site | K | https://www.pexels.com/video/drone-shot-of-the-construction-site-4404097/ |
+| progress, progress-wide | Aerial View of Construction Site with Steel Frame | David Pickup | https://www.pexels.com/video/aerial-view-of-construction-site-with-steel-frame-33893697/ |
 | security | Empty City Street at Night with Construction | Altaf Shah | https://www.pexels.com/video/city-street-at-night-with-construction-39644096/ |
 | safety | Workers Talking on Construction | Waleed Talat | https://www.pexels.com/video/workers-talking-on-construction-13569683/ |
 

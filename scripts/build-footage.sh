@@ -24,9 +24,18 @@ film() {
   ffmpeg -v error -y -i "$OUT/$name.mp4" -frames:v 1 -q:v 5 "$OUT/$name.jpg"
 }
 
+# name source second
+# Exports one sharp frame from the 4K source for the page heroes, which show a still across the full width.
+still() {
+  local name=$1 src=$2 at=$3
+  ffmpeg -v error -y -ss "$at" -i "$SRC/$src" -frames:v 1 -vf "scale=2880:1620:flags=lanczos" -c:v libwebp -quality 82 "$OUT/$name-wide.webp"
+}
+
 film hero     4404097.mp4  0 12  1 1920 1080 25 ""
 film hero-sm  4404097.mp4  0 12  1 960  540  26 ""
 film progress 33893697.mp4 0 15  1 1280 720  24 ""
 film security 39644096.mp4 4 16  1 1280 720  24 "gblur=sigma=1.5,"
 film safety   13569683.mp4 0 5.6 2 1280 720  24 ""
+still hero     4404097.mp4  3
+still progress 33893697.mp4 2
 ls -la "$OUT"
