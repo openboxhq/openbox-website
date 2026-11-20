@@ -37,27 +37,36 @@ film() {
   ffmpeg -v error -y -i "$OUT/$name.mp4" -frames:v 1 -q:v 5 "$OUT/$name.jpg"
 }
 
-# How far the walk's held frame pushes in, as a share of the frame.
+# The site walk's speed ramp. Times are seconds from the start of the segment.
+WALK_SLOW=2.5      # slow motion before the step: 60 fps source shown at 24
+WALK_DEEP=7        # slow motion while the foot lands
+WALK_END=3         # slow motion the clip eases back to
+WALK_RAMP_IN=2.5   # the walk starts slowing here
+WALK_DEEP_IN=2.9   # deepest slow motion from here, just before the foot lands at 3.0
+WALK_DEEP_OUT=3.2  # and it starts easing back here
+# How far the walk pushes in, from the start of the slow-down to the end of the clip, as a share of the frame.
 PUSH=0.16
 
-# name source start land end slowdown hold width height crf
-# The site walk: slow motion up to the frame where the left worker's foot lands, that frame held with
-# a slow push-in, then the walk resumes. A short clip then reads as one long, deliberate shot.
+# name source start seconds width height crf
+# The site walk: slow motion that slows much further as the left worker's foot lands, with a push-in
+# over the same seconds. Nothing is held: in-between frames are built first (four per source frame),
+# so the deepest slow motion still shows a new image on every frame.
 walk() {
-  local name=$1 src=$2 start=$3 land=$4 end=$5 slow=$6 hold=$7 w=$8 h=$9 crf=${10}
-  local before after total offset frames_before frames_hold span
-  span=$(echo "$end - $start" | bc)
-  before=$(echo "($land - $start) * $slow" | bc)
-  after=$(echo "($end - $land) * $slow" | bc)
-  total=$(echo "$before + $hold + $after" | bc)
+  local name=$1 src=$2 start=$3 seconds=$4 w=$5 h=$6 crf=$7
+  local a=$WALK_RAMP_IN b=$WALK_DEEP_IN c=$WALK_DEEP_OUT d=$4
+  local k1 k2 fa fb fc total offset zoom_from zoom_frames remap
+  k1=$(echo "scale=6; ($WALK_DEEP - $WALK_SLOW) / ($b - $a)" | bc)
+  k2=$(echo "scale=6; ($WALK_END - $WALK_DEEP) / ($d - $c)" | bc)
+  fa=$(echo "scale=6; $WALK_SLOW * $a" | bc)
+  fb=$(echo "scale=6; $fa + $WALK_SLOW * ($b - $a) + $k1 / 2 * ($b - $a) ^ 2" | bc)
+  fc=$(echo "scale=6; $fb + $WALK_DEEP * ($c - $b)" | bc)
+  total=$(echo "scale=3; ($fc + $WALK_DEEP * ($d - $c) + $k2 / 2 * ($d - $c) ^ 2) / 1" | bc)
   offset=$(echo "$total - 2 * $FADE" | bc)
-  frames_before=$(echo "$before * $FPS / 1" | bc)
-  frames_hold=$(echo "$hold * $FPS / 1" | bc)
-  ffmpeg -v error -y -ss "$start" -t "$span" -i "$SRC/$src" -filter_complex "
-    [0:v]split[s1][s2];
-    [s1]trim=end=$(echo "$land - $start" | bc),setpts=$slow*(PTS-STARTPTS),fps=$FPS,tpad=stop_mode=clone:stop_duration=$hold[a];
-    [s2]trim=start=$(echo "$land - $start" | bc),setpts=$slow*(PTS-STARTPTS),fps=$FPS[c];
-    [a][c]concat=n=2:v=1:a=0,scale=3840:2160:flags=bicubic,zoompan=z='if(lt(on,$frames_before),1,if(lt(on,$frames_before+$frames_hold),1+$PUSH*pow((on-$frames_before)/$frames_hold,2)*(3-2*(on-$frames_before)/$frames_hold),1+$PUSH))':x='(iw-iw/zoom)*0.5':y='(ih-ih/zoom)*0.82':d=1:s=${w}x${h}:fps=$FPS,split[h0][b0];
+  zoom_from=$(echo "$fa * $FPS / 1" | bc)
+  zoom_frames=$(echo "($total - $fa) * $FPS / 1" | bc)
+  remap="if(lt(T,$a),$WALK_SLOW*T,if(lt(T,$b),$fa+$WALK_SLOW*(T-$a)+$k1/2*pow(T-$a,2),if(lt(T,$c),$fb+$WALK_DEEP*(T-$b),$fc+$WALK_DEEP*(T-$c)+$k2/2*pow(T-$c,2))))"
+  ffmpeg -v error -y -ss "$start" -t "$seconds" -i "$SRC/$src" -filter_complex "
+    [0:v]scale=1600:900:flags=lanczos,minterpolate=fps=240000/1001:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1,setpts='($remap)/TB',fps=$FPS,scale=3200:1800:flags=bicubic,zoompan=z='if(lt(on,$zoom_from),1,if(lt(on,$zoom_from+$zoom_frames),1+$PUSH*pow((on-$zoom_from)/$zoom_frames,2)*(3-2*(on-$zoom_from)/$zoom_frames),1+$PUSH))':x='(iw-iw/zoom)*0.5':y='(ih-ih/zoom)*0.82':d=1:s=${w}x${h}:fps=$FPS,split[h0][b0];
     [h0]trim=0:$FADE,setpts=PTS-STARTPTS,fps=$FPS[head];
     [b0]trim=$FADE:$total,setpts=PTS-STARTPTS,fps=$FPS[body];
     [body][head]xfade=transition=fade:duration=$FADE:offset=$offset,format=yuv420p[out]" \
@@ -82,9 +91,8 @@ film security 29568504.mp4 4   3.5 3   1280 720  24 "" "$NIGHT_GRADE" "$SMOOTH"
 # machines' lettering is readable until second 8, when the nearest excavator leaves the frame.
 # It plays at 1.25 times slower, which maps each 30 fps source frame to one 24 fps frame.
 film security-hero 29568504.mp4 8 4.5 1.25 1920 1080 25 "" "$NIGHT_GRADE"
-# The walk uses the seconds where both workers face away, slowed from 60 to 24 frames a second.
-# The left worker's foot lands 4.2 seconds into the source; the frame is held there for 3.5 seconds.
-walk safety   13569683.mp4 1.2 4.2 4.8 2.5 3.5 1280 720 24
+# The walk uses seconds 1.2 to 4.8 of the source, where both workers face away.
+walk safety   13569683.mp4 1.2 3.6 1280 720 24
 still hero     4404097.mp4  6 "$HERO_CROP" ""
 # The delogo patch covers two small site cabins that carry a hire company's mark.
 still progress 33893697.mp4 2 "$PROGRESS_CROP" ",delogo=x=685:y=1288:w=107:h=47"
