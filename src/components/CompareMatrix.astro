@@ -1,0 +1,63 @@
+---
+import { COMPARE, type Coverage } from "../data/engines";
+
+const mark: Record<Coverage, { glyph: string; label: string }> = {
+  full: { glyph: "●", label: "Yes" },
+  partial: { glyph: "◐", label: "Partly" },
+  none: { glyph: "○", label: "No" },
+};
+const cols = [
+  { key: "walkTools", label: "Walk-based progress tools" },
+  { key: "cameraVendors", label: "Jobsite camera and security vendors" },
+  { key: "openbox", label: "Openbox" },
+] as const;
+---
+<section class="section compare">
+  <div class="wrap">
+    <p class="eyebrow c-k">Compared</p>
+    <h2 class="display c-head">What others split in two,<br /><em>in one place.</em></h2>
+    <div class="c-scroll">
+      <table class="c-table">
+        <thead>
+          <tr>
+            <th scope="col"><span class="sr">Capability</span></th>
+            {cols.map((c) => <th scope="col" class:list={["mono", { ob: c.key === "openbox" }]}>{c.label}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {COMPARE.map((row) => (
+            <tr>
+              <th scope="row">{row.capability}</th>
+              {cols.map((c) => (
+                <td class:list={[row[c.key], { ob: c.key === "openbox" }]}>
+                  <span aria-hidden="true">{mark[row[c.key]].glyph}</span>
+                  <span class="sr">{mark[row[c.key]].label}</span>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="c-note mono">● Yes · ◐ Partly · ○ No. Typical coverage by product category; individual products vary.</p>
+  </div>
+</section>
+
+<style>
+  .compare { background: var(--stone) var(--grain); border-block: 1px solid var(--line); }
+  .c-k { margin: 0 0 14px; }
+  .c-head { font-size: clamp(40px, 6vw, 76px); margin: 0 0 56px; }
+  .c-head em { color: var(--ink-3); }
+  .c-scroll { overflow-x: auto; }
+  .c-table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 15px; }
+  .c-table th, .c-table td { padding: 14px 12px; border-bottom: 1px solid var(--line); text-align: left; }
+  .c-table thead th { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; vertical-align: bottom; border-bottom-color: var(--ink); width: 19%; }
+  .c-table thead th:first-child { width: auto; }
+  .c-table tbody th { font-weight: 500; }
+  .c-table td { font-size: 17px; color: var(--ink-3); }
+  .c-table td.full { color: var(--ink); }
+  .c-table .ob { background: rgba(217,255,66,.22); }
+  .c-table thead .ob { color: var(--ink); font-weight: 600; }
+  .c-note { margin: 18px 0 0; font-size: 12px; color: var(--ink-3); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>

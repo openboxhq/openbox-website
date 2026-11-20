@@ -1,0 +1,23 @@
+---
+import { DEMO_HREF, DEMO_IS_EXTERNAL } from "../data/site";
+
+const externalAttrs = DEMO_IS_EXTERNAL ? { target: "_blank", rel: "noopener" } : {};
+---
+<section class="pilot" id="pilot">
+  <div class="wrap pilot-inner">
+    <p class="eyebrow pilot-k"><span class="signal-dot"></span>Free 30-day pilot</p>
+    <h2 class="display">Start with one project.</h2>
+    <p class="pilot-lede">We connect your cameras. You see the results on your own site. Then you decide.</p>
+    <a class="btn pilot-cta" href={DEMO_HREF} {...externalAttrs}>Book a demo</a>
+  </div>
+</section>
+
+<style>
+  .pilot { background: var(--night) var(--grain); color: #fff; padding-block: 128px; }
+  .pilot-inner { display: grid; justify-items: start; gap: 22px; }
+  .pilot-k { display: inline-flex; align-items: center; gap: 10px; color: rgba(255,255,255,.62); margin: 0; }
+  .pilot h2 { font-size: clamp(44px, 7vw, 96px); margin: 0; }
+  .pilot-lede { margin: 0 0 12px; font-size: clamp(17px, 1.6vw, 20px); color: rgba(255,255,255,.7); max-width: 40ch; }
+  .pilot-cta { background: #fff; color: var(--ink); }
+  .pilot-cta:hover { background: var(--signal); }
+</style>
