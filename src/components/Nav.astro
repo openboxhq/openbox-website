@@ -10,7 +10,7 @@ const { overlay = false } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const externalAttrs = DEMO_IS_EXTERNAL ? { target: "_blank", rel: "noopener" } : {};
 const links = [
-  { href: `${base}#how-it-works`, label: "How it works" },
+  { href: `${base}how-it-works/`, label: "How it works" },
   { href: `${base}about/`, label: "About" },
 ];
 ---

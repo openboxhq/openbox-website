@@ -16,6 +16,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
         </article>
       ))}
     </div>
+    <a class="p-more" href={`${base}how-it-works/`}>See how it works →</a>
     <div class="proof">
       <span class="proof-n display">100,000+</span>
       <span class="proof-t">live cameras run on the Dragonfruit AI video platform that powers Openbox.</span>
@@ -36,8 +37,10 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
   .p-k { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
   .p-tile h3 { font-size: clamp(28px, 2.8vw, 36px); line-height: 1.05; margin: 0; }
   .p-tile p { margin: 0; color: var(--ink-2); max-width: 30ch; }
+  .p-more { display: inline-block; margin-top: 36px; font-size: 15px; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink); padding-bottom: 2px; }
+  .p-more:hover { color: var(--ink-2); }
   .proof {
-    margin-top: 96px; padding-top: 28px; border-top: 1px solid var(--line);
+    margin-top: 72px; padding-top: 28px; border-top: 1px solid var(--line);
     display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
   }
   .proof-n { font-size: clamp(40px, 5vw, 60px); line-height: 1; }

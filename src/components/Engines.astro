@@ -1,0 +1,130 @@
+---
+import { ENGINES } from "../data/engines";
+
+const days = ["MON", "TUE", "WED", "THU", "FRI"];
+const zones = [
+  { x: 40, y: 40, w: 150, h: 110, state: "done" },
+  { x: 190, y: 40, w: 130, h: 110, state: "done" },
+  { x: 320, y: 40, w: 160, h: 110, state: "live" },
+  { x: 40, y: 150, w: 220, h: 110, state: "done" },
+  { x: 260, y: 150, w: 110, h: 110, state: "live" },
+  { x: 370, y: 150, w: 110, h: 110, state: "todo" },
+];
+---
+<section class="section engines" id="engines">
+  <div class="wrap">
+    <p class="eyebrow e-k">Built on the Dragonfruit AI platform</p>
+    <h2 class="display e-head">Two systems.<br /><em>One record of your site.</em></h2>
+
+    {ENGINES.map((e, i) => (
+      <article class:list={["engine", `engine-${e.id}`]} id={e.id}>
+        <div class="e-copy">
+          <span class="e-n mono">0{i + 1} {e.label}</span>
+          <h3 class="display">{e.title}</h3>
+          <p class="e-lede">{e.lede}</p>
+          <dl class="caps">
+            {e.capabilities.map((c) => (
+              <div class="cap">
+                <dt>{c.name}</dt>
+                <dd>{c.detail}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <figure class="e-fig" aria-hidden="true">
+          {e.id === "twin" ? (
+            <svg viewBox="0 0 520 380" class="fig-twin">
+              <rect x="20" y="20" width="480" height="260" rx="6" class="sheet" />
+              {zones.map((z) => <rect x={z.x} y={z.y} width={z.w} height={z.h} class={`zone ${z.state}`} />)}
+              <path d="M70 230 C 120 200, 150 120, 230 110 S 330 190, 420 120" class="walk" />
+              <circle cx="420" cy="120" r="5" class="walker" />
+              <text x="412" y="142" class="lbl" text-anchor="end">HEADCAM · L3</text>
+              <circle cx="300" cy="95" r="46" class="drone-fp" />
+              <path d="M292 95 h16 M300 87 v16" class="drone" />
+              <text x="252" y="38" class="lbl">DRONE · SURVEY</text>
+              <path d="M40 270 L 90 215 L 120 250 Z" class="cone" />
+              <circle cx="40" cy="270" r="4" class="cam" />
+              <text x="48" y="292" class="lbl">SITE CAM 04</text>
+              <line x1="40" y1="330" x2="480" y2="330" class="track" />
+              {days.map((d, j) => (
+                <g>
+                  <circle cx={40 + j * 110} cy="330" r={j === 3 ? 6 : 3.5} class={j === 3 ? "day now" : "day"} />
+                  <text x={40 + j * 110} y="356" class="lbl" text-anchor="middle">{d}</text>
+                </g>
+              ))}
+            </svg>
+          ) : (
+            <svg viewBox="0 0 520 380" class="fig-watch">
+              <rect x="0" y="0" width="520" height="380" rx="14" class="night" />
+              <path d="M0 270 L 520 238" class="ground" />
+              <path d="M30 200 L 30 270 M120 194 L 120 264 M210 188 L 210 258 M300 182 L 300 252 M390 176 L 390 246 M480 170 L 480 240" class="fence" />
+              <path d="M30 200 L 480 170" class="fence" />
+              <rect x="330" y="150" width="46" height="96" class="box alert" />
+              <text x="330" y="140" class="lbl alert-t">PERSON · AFTER HOURS</text>
+              <rect x="88" y="214" width="92" height="44" class="box" />
+              <text x="88" y="206" class="lbl ok-t">EQUIPMENT · SECURED</text>
+              <text x="24" y="40" class="lbl dim">SITE CAM 02 · 02:14:37</text>
+              <text x="496" y="40" class="lbl dim" text-anchor="end">REC</text>
+              <circle cx="470" cy="36" r="4" class="rec" />
+              <rect x="24" y="310" width="472" height="46" rx="8" class="toast" />
+              <circle cx="46" cy="333" r="4" class="rec" />
+              <text x="60" y="337" class="lbl toast-t">Reviewed by a person · PM notified · clip saved</text>
+            </svg>
+          )}
+        </figure>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .e-k { margin: 0 0 14px; }
+  .e-head { font-size: clamp(40px, 6vw, 76px); margin: 0 0 88px; }
+  .e-head em { color: var(--ink-3); }
+  .engine { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 88px); align-items: start; padding-block: 56px; border-top: 1px solid var(--ink); }
+  .engine + .engine { margin-top: 40px; }
+  .e-n { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+  .engine h3 { font-size: clamp(32px, 3.4vw, 46px); line-height: 1.04; margin: 14px 0 12px; }
+  .e-lede { margin: 0 0 28px; color: var(--ink-2); max-width: 44ch; }
+  .caps { margin: 0; display: grid; }
+  .cap { display: grid; grid-template-columns: 170px 1fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .cap:last-child { border-bottom: 1px solid var(--line); }
+  .cap dt { font-weight: 600; font-size: 15px; }
+  .cap dd { margin: 0; color: var(--ink-2); font-size: 15px; }
+  .e-fig { margin: 0; position: sticky; top: 110px; }
+  .e-fig svg { display: block; width: 100%; height: auto; }
+
+  .fig-twin { background: var(--stone) var(--grain); border: 1px solid var(--line); border-radius: 16px; }
+  .fig-twin .sheet { fill: #fff; stroke: var(--line-strong); }
+  .fig-twin .zone { stroke: var(--line-strong); stroke-width: 1; fill: transparent; }
+  .fig-twin .zone.done { fill: rgba(17,17,16,.05); }
+  .fig-twin .zone.live { fill: rgba(217,255,66,.35); stroke: var(--signal-ink); }
+  .fig-twin .walk { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 5; }
+  .fig-twin .walker { fill: var(--ink); }
+  .fig-twin .drone-fp { fill: rgba(17,17,16,.04); stroke: var(--ink); stroke-dasharray: 2 4; }
+  .fig-twin .drone { stroke: var(--ink); stroke-width: 2; }
+  .fig-twin .cone { fill: rgba(17,17,16,.08); }
+  .fig-twin .cam { fill: var(--ink); }
+  .fig-twin .track { stroke: var(--line-strong); }
+  .fig-twin .day { fill: #fff; stroke: var(--ink-3); }
+  .fig-twin .day.now { fill: var(--signal); stroke: var(--signal-ink); }
+  .e-fig .lbl { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; fill: var(--ink-2); }
+
+  .fig-watch .night { fill: #0f0f0e; }
+  .fig-watch .ground { stroke: rgba(255,255,255,.12); fill: none; }
+  .fig-watch .fence { stroke: rgba(255,255,255,.22); fill: none; }
+  .fig-watch .box { fill: none; stroke: var(--signal); stroke-width: 1.4; }
+  .fig-watch .box.alert { stroke: #ff785a; }
+  .fig-watch .alert-t { fill: #ff785a; }
+  .fig-watch .ok-t { fill: var(--signal); }
+  .fig-watch .dim { fill: rgba(255,255,255,.45); }
+  .fig-watch .rec { fill: #ff785a; }
+  .fig-watch .toast { fill: rgba(255,255,255,.06); stroke: rgba(255,255,255,.12); }
+  .fig-watch .toast-t { fill: rgba(255,255,255,.82); }
+
+  @media (max-width: 900px) {
+    .engine { grid-template-columns: minmax(0, 1fr); }
+    .e-fig { position: static; order: -1; }
+    .cap { grid-template-columns: 1fr; gap: 2px; }
+  }
+</style>
