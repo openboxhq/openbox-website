@@ -67,12 +67,20 @@ const PLATE_SHEAR = -0.11;
 /** Offset between neighbouring plates, as a share of plate width. */
 const DEPTH_X = -0.17;
 const DEPTH_Y = 0.07;
+/** Plate height as a share of the viewport: smaller while the statement sits under the stack. */
+const STACK_HEIGHT_ALONE = 0.42;
+const STACK_HEIGHT_BESIDE = 0.5;
+/** Distance from the stack's centre to its top edge, in plate heights, once the plates are spread. */
+const STACK_HALF_SPAN = 0.5 + ((PLATE_SQUEEZE * -PLATE_SHEAR) / 2 + DEPTH_Y) / PLATE_RATIO;
+const NAV_GAP = 28;
 /** The drawn state trails the scroll position by this time constant, so wheel steps glide. */
 const SCROLL_LAG_MS = 170;
 /** The drawn state never trails the scroll position by more than this share of the story. */
 const MAX_TRAIL = 0.22;
 
 /** Scroll progress marks, 0 to 1 across the pinned section. */
+/** The hero clips rotate up to this mark, hold while the film shrinks, then rotate again in the stack. */
+const HERO_HOLD = 0.01;
 const SHRINK_END = 0.22;
 const EXPLODE_START = 0.11;
 const EXPLODE_END = 0.28;
@@ -167,6 +175,8 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
   let shown = -1;
   let lastFrame = 0;
   let cycleClock = 0;
+  let cycleIndex = 0;
+  let navHeight = 64;
   const layerAlpha = [1, 1, 1];
 
   layerButtons.forEach((button) => {
@@ -192,6 +202,7 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     canvas!.width = Math.round(width * dpr);
     canvas!.height = Math.round(height * dpr);
     if (header && window.scrollY < 4) topInset = header.offsetHeight + 4;
+    navHeight = header?.querySelector<HTMLElement>(".nav")?.offsetHeight ?? navHeight;
     root.style.setProperty("--card-top", `${topInset}px`);
   }
 
@@ -210,7 +221,7 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     if (Math.abs(gap) > MAX_TRAIL) shown = target - Math.sign(gap) * MAX_TRAIL;
     shown += (target - shown) * (1 - Math.exp(-dt / SCROLL_LAG_MS));
     if (Math.abs(target - shown) < 0.0003) shown = target;
-    if (target < 0.01) cycleClock += dt;
+    if (shown < HERO_HOLD || shown >= SHRINK_END) cycleClock += dt;
     return shown;
   }
 
@@ -235,7 +246,7 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
   }
 
   function updateClips(chapter: number): void {
-    const cycleIndex = reduced ? 0 : Math.floor(cycleClock / HERO_CLIP_MS) % config.heroCycle.length;
+    cycleIndex = reduced ? 0 : Math.floor(cycleClock / HERO_CLIP_MS) % config.heroCycle.length;
     const [cycleClip, cyclePillar] = config.heroCycle[cycleIndex];
     const active = chapter >= 0 ? config.chapters[chapter].clip : cycleClip;
     pillarEls.forEach((el) => el.classList.toggle("is-on", el.dataset.pillar === cyclePillar));
@@ -282,7 +293,7 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     ctx.fillRect(0, 0, width, height);
 
     const narrow = width < SMALL_VIEWPORT;
-    const plateW = narrow ? width * 0.7 : Math.min(width * lerp(0.46, 0.4, side), (height * 0.5) / PLATE_RATIO);
+    const plateW = narrow ? width * 0.7 : Math.min(width * lerp(0.46, 0.4, side), (height * lerp(STACK_HEIGHT_ALONE, STACK_HEIGHT_BESIDE, side)) / PLATE_RATIO);
     const cardW = width - CARD_INSET * 2;
     const cardH = height - topInset - CARD_INSET;
     const w = lerp(cardW, plateW, shrink);
@@ -290,7 +301,8 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     const squeeze = lerp(1, PLATE_SQUEEZE, shrink);
     const shear = lerp(0, PLATE_SHEAR, shrink);
     const restX = narrow ? width / 2 : lerp(width / 2, width * 0.69, side);
-    const restY = narrow ? lerp(height * 0.34, height * 0.25, side) : lerp(height * 0.4, height * 0.45, side);
+    const clearNav = navHeight + NAV_GAP + plateW * PLATE_RATIO * STACK_HALF_SPAN;
+    const restY = narrow ? lerp(height * 0.34, height * 0.25, side) : Math.max(clearNav, lerp(height * 0.4, height * 0.45, side));
     const cx = lerp(width / 2, restX, shrink);
     const cy = lerp(topInset + cardH / 2, restY, shrink);
     const stepX = plateW * DEPTH_X * explode;
@@ -418,7 +430,8 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
         ctx.textBaseline = "alphabetic";
         ctx.globalAlpha = explode * lerp(0.45, 1, layerAlpha[depth]);
         ctx.fillStyle = depth === 1 ? BLUE : "rgba(255,255,255,.8)";
-        const detail = depth === 0 && active ? ` · ${active.source}` : "";
+        const source = active?.source ?? config.chapters[cycleIndex]?.source;
+        const detail = depth === 0 && source ? ` · ${source}` : "";
         ctx.fillText(`0${depth + 1} ${name}${detail}`, radius, -9);
       });
     });
