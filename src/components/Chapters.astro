@@ -1,0 +1,58 @@
+---
+import { PILLARS } from "../data/product";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+---
+<div class="chapters" id="product">
+  {PILLARS.map((p, i) => (
+    <section class:list={["chapter", { flip: i % 2 === 1 }]} id={p.id}>
+      <div class="wrap ch-grid">
+        <div class="ch-copy">
+          <p class="ch-k mono"><span>0{i + 1}</span>{p.name}</p>
+          <h2 class="display">{p.title}</h2>
+          <p class="ch-detail">{p.detail}</p>
+          <ul class="ch-specs mono">
+            {p.specs.map((s) => <li>{s}</li>)}
+          </ul>
+        </div>
+        <div class="ch-stage">
+          <canvas
+            aria-hidden="true"
+            data-film={`${base}media/${p.media}.mp4`}
+            data-edge={`${base}media/${p.media}-edge.mp4`}
+            data-poster={`${base}media/${p.media}.jpg`}
+            data-mode="plates"
+            data-tags={JSON.stringify(p.tags)}
+          ></canvas>
+        </div>
+      </div>
+    </section>
+  ))}
+  <p class="wrap ch-more"><a href={`${base}how-it-works/`}>See how it works →</a></p>
+</div>
+
+<style>
+  .chapter { padding-block: clamp(56px, 8vw, 104px); }
+  .ch-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 5vw, 72px); align-items: center; }
+  .flip .ch-grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+  .flip .ch-copy { order: 2; }
+  .ch-k { display: inline-flex; gap: 14px; margin: 0 0 20px; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--signal); }
+  .ch-k span { color: rgba(255,255,255,.4); }
+  .chapter h2 { font-size: clamp(38px, 4.6vw, 64px); line-height: 1; margin: 0 0 20px; }
+  .ch-detail { margin: 0 0 30px; color: rgba(255,255,255,.7); max-width: 40ch; text-wrap: pretty; }
+  .ch-specs { list-style: none; margin: 0; padding: 0; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.62); max-width: 380px; }
+  .ch-specs li { padding: 11px 0; border-top: 1px solid rgba(255,255,255,.14); }
+  .ch-specs li:last-child { border-bottom: 1px solid rgba(255,255,255,.14); }
+  .ch-stage { position: relative; aspect-ratio: 10 / 8; }
+  .ch-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ch-more { margin-block: 24px 0; }
+  .ch-more a { color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.5); padding-bottom: 2px; font-size: 15px; }
+  .ch-more a:hover { border-color: var(--signal); color: var(--signal); }
+
+  @media (max-width: 860px) {
+    .ch-grid, .flip .ch-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .ch-stage, .flip .ch-stage { order: -1; }
+    .flip .ch-copy { order: 0; }
+    .ch-stage { aspect-ratio: 10 / 7.4; margin-inline: -8px; }
+  }
+</style>
