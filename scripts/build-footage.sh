@@ -18,15 +18,18 @@ PROGRESS_CROP="crop=iw*0.94:ih*0.94:iw*0.03:ih*0.06,"
 # removes the lettering on the machines, which the wide framing already leaves a few pixels tall.
 NIGHT_GRADE="format=gray,median=radius=1,eq=gamma=0.74:contrast=1.22:brightness=-0.1,curves=all='0/0 0.25/0.12 0.6/0.42 0.85/0.74 1/0.94',vignette=angle=PI/4,noise=alls=5:allf=t,"
 
-# name source start seconds slowdown width height crf crop prefilter
+# Builds the in-between frames when a clip is slowed past its own frame rate, so it stays smooth.
+SMOOTH="minterpolate=fps=$FPS:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1"
+
+# name source start seconds slowdown width height crf crop prefilter [rate filter]
 # Trims a segment, optionally slows it, and cross-fades its tail into its head so the loop has no visible cut.
 film() {
-  local name=$1 src=$2 start=$3 seconds=$4 slow=$5 w=$6 h=$7 crf=$8 crop=$9 pre=${10}
+  local name=$1 src=$2 start=$3 seconds=$4 slow=$5 w=$6 h=$7 crf=$8 crop=$9 pre=${10} rate=${11:-fps=$FPS}
   local len offset
   len=$(echo "$seconds * $slow" | bc)
   offset=$(echo "$len - 2 * $FADE" | bc)
   ffmpeg -v error -y -ss "$start" -t "$seconds" -i "$SRC/$src" -filter_complex "
-    [0:v]setpts=$slow*PTS,${crop}fps=$FPS,scale=$w:$h:flags=lanczos,${pre}split[h0][b0];
+    [0:v]setpts=$slow*PTS,${crop}scale=$w:$h:flags=lanczos,${rate},${pre}split[h0][b0];
     [h0]trim=0:$FADE,setpts=PTS-STARTPTS,fps=$FPS[head];
     [b0]trim=$FADE:$len,setpts=PTS-STARTPTS,fps=$FPS[body];
     [body][head]xfade=transition=fade:duration=$FADE:offset=$offset,format=yuv420p[out]" \
@@ -45,8 +48,8 @@ film hero     4404097.mp4  0   12  1   1920 1080 25 "$HERO_CROP" ""
 film hero-sm  4404097.mp4  0   12  1   960  540  26 "$HERO_CROP" ""
 film progress 33893697.mp4 0   15  1   1280 720  24 "$PROGRESS_CROP" ""
 # Seconds 4 to 7.5 only: earlier the machines fill the frame and their lettering is readable,
-# later the view opens onto houses and parked cars. Slowed to a 10 frames a second camera cadence.
-film security 29568504.mp4 4   3.5 3   1280 720  24 "" "$NIGHT_GRADE"
+# later the view opens onto houses and parked cars. Slowed three times, with in-between frames built.
+film security 29568504.mp4 4   3.5 3   1280 720  24 "" "$NIGHT_GRADE" "$SMOOTH"
 # The walk uses the seconds where both workers face away, slowed from 60 to 24 frames a second.
 film safety   13569683.mp4 1.2 3.6 2.5 1280 720  24 "" ""
 still hero     4404097.mp4  6 "$HERO_CROP" ""
