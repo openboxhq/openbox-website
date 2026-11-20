@@ -4,7 +4,7 @@
 @import "@fontsource/ibm-plex-mono/400.css";
 @import "@fontsource/ibm-plex-mono/500.css";
 
-/* Openbox: a drawing sheet, alive. Greyscale ground, one signal accent for live and verified states. */
+/* Openbox: black and white grounds, drawing blue for plans and live states, orange for alerts. */
 :root {
   --paper: #ffffff;
   --stone: #f5f5f2;
@@ -16,8 +16,10 @@
   --ink-3: #6b6b65;
   --night: #141413;
   --night-2: #232321;
-  --signal: #d9ff42;
-  --signal-ink: #3f5500;
+  --signal: #8fbcff;
+  --signal-ink: #12284a;
+  --accent: #12284a;
+  --alert: #ff6a3d;
 
   --serif: "Instrument Serif", ui-serif, Georgia, serif;
   --sans: "Inter Tight Variable", "Inter Tight", system-ui, sans-serif;
@@ -94,7 +96,7 @@ a { color: inherit; }
 .btn-line:hover { border-color: var(--ink); }
 
 .mono { font-family: var(--mono); }
-.signal-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 0 3px rgba(217,255,66,.28); }
+.signal-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 0 3px rgba(143,188,255,.3); }
 
 .section { padding-block: 112px; }
 .section-head { display: grid; gap: 14px; margin-bottom: 48px; }

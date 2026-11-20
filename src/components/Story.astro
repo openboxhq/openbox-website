@@ -1,6 +1,6 @@
 ---
 import { DAYS, PILLARS } from "../data/product";
-import type { StoryConfig } from "../scripts/story";
+import { CHAPTERS_START, type StoryConfig } from "../scripts/story";
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const LAYERS = ["Footage", "Drawing", "Insights"];
@@ -9,7 +9,6 @@ const config: StoryConfig = {
   heroCycle: PILLARS.map((p) => [p.id === "progress" ? "hero" : p.media, p.id]),
   chapters: PILLARS.map((p) => ({ clip: p.media, source: p.source, sheet: p.sheet, drawing: p.drawing, tags: p.tags, readouts: p.readouts })),
 };
-const CHAPTERS_START = 0.42;
 const anchorAt = (i: number) => CHAPTERS_START + ((1 - CHAPTERS_START) / PILLARS.length) * (i + 0.3);
 ---
 <section class="story" id="product" data-story data-config={JSON.stringify(config)}>
@@ -72,7 +71,7 @@ const anchorAt = (i: number) => CHAPTERS_START + ((1 - CHAPTERS_START) / PILLARS
 </script>
 
 <style>
-  .story { --story-h: 640svh; position: relative; height: var(--story-h); background: #0a0a09; }
+  .story { --story-h: 720svh; position: relative; height: var(--story-h); background: #0a0a09; }
   .st-anchor { position: absolute; left: 0; width: 1px; height: 1px; scroll-margin-top: 0; }
   .st-pin { position: sticky; top: 0; height: 100svh; overflow: hidden; color: #fff; }
   .st-pin canvas { position: absolute; inset: 0; width: 100%; height: 100%; }

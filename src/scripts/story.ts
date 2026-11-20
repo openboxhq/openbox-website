@@ -2,9 +2,9 @@
  * The home page story: one pinned canvas driven by scroll.
  * The hero film shrinks into a tilted plate, then two more sheets lift off it:
  * the 2D drawing the footage is mapped to, and the insights read from both.
- * A day timeline under the stack rewinds all three.
+ * A day timeline under the stack rewinds the insights.
  */
-import { BAYS_BY_DAY, drawSheet, type DrawingKind, type DrawingStyle } from "./story-drawings";
+import { BAYS_BY_DAY, drawInsights, drawPlan, type DrawingKind, type InsightStyle, type PlanStyle } from "./story-drawings";
 
 export interface FilmTag {
   /** Position on the plate, 0 to 1 from the top-left. */
@@ -41,6 +41,11 @@ interface Clip {
   alpha: number;
 }
 
+interface Point {
+  x: number;
+  y: number;
+}
+
 const BLUE = "#8fbcff";
 const GREEN = "#6fd6a0";
 const ALERT = "#ff6a3d";
@@ -62,42 +67,27 @@ const PLATE_SHEAR = -0.11;
 /** Offset between neighbouring plates, as a share of plate width. */
 const DEPTH_X = -0.17;
 const DEPTH_Y = 0.07;
+/** The drawn state trails the scroll position by this time constant, so wheel steps glide. */
+const SCROLL_LAG_MS = 170;
+/** The drawn state never trails the scroll position by more than this share of the story. */
+const MAX_TRAIL = 0.22;
 
 /** Scroll progress marks, 0 to 1 across the pinned section. */
-const HERO_OUT = 0.07;
-const DARK_BY = 0.1;
-const SHRINK_END = 0.2;
-const EXPLODE_START = 0.1;
-const EXPLODE_END = 0.24;
-const MANIFESTO: [number, number, number, number] = [0.15, 0.2, 0.3, 0.34];
-const SIDE_START = 0.32;
-const CHAPTERS_START = 0.42;
+const SHRINK_END = 0.22;
+const EXPLODE_START = 0.11;
+const EXPLODE_END = 0.28;
+const MANIFESTO: [number, number, number, number] = [0.19, 0.24, 0.33, 0.37];
+const SIDE_START = 0.35;
+export const CHAPTERS_START = 0.46;
 const FADE = 0.03;
 
-const GLASS_STYLE: Omit<DrawingStyle, "font"> = {
-  line: BLUE,
-  faint: "rgba(143,188,255,.38)",
-  ok: GREEN,
-  okFill: "rgba(111,214,160,.3)",
-  coneFill: "rgba(143,188,255,.14)",
-  alert: ALERT,
-  alertFill: "rgba(255,106,61,.55)",
-  text: "rgba(214,230,255,.9)",
-};
-const PAPER_STYLE: Omit<DrawingStyle, "font"> = {
-  line: "#1b2a44",
-  faint: "rgba(27,42,68,.35)",
-  ok: "#1f8a55",
-  okFill: "rgba(31,138,85,.22)",
-  coneFill: "rgba(27,42,68,.1)",
-  alert: "#d9481c",
-  alertFill: "rgba(217,72,28,.5)",
-  text: "#1b2a44",
-};
+const PLAN_GLASS: Omit<PlanStyle, "font"> = { line: BLUE, faint: "rgba(143,188,255,.38)", fill: "rgba(143,188,255,.1)", text: "rgba(214,230,255,.9)" };
+const PLAN_PAPER: Omit<PlanStyle, "font"> = { line: "#1b2a44", faint: "rgba(27,42,68,.34)", fill: "rgba(27,42,68,.06)", text: "#1b2a44" };
+const INSIGHT_STYLE: InsightStyle = { line: "rgba(255,255,255,.85)", ok: GREEN, okFill: "rgba(111,214,160,.3)", alert: ALERT, alertFill: "rgba(255,106,61,.6)" };
 
 const clamp01 = (n: number): number => Math.min(1, Math.max(0, n));
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
-const ease = (t: number): number => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const smooth = (t: number): number => t * t * (3 - 2 * t);
 const span = (p: number, from: number, to: number): number => clamp01((p - from) / (to - from));
 
 function hiddenVideo(src: string, host: HTMLElement): HTMLVideoElement {
@@ -147,7 +137,7 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
   const pillarEls = [...root.querySelectorAll<HTMLElement>("[data-pillar]")];
   const layerButtons = [...root.querySelectorAll<HTMLButtonElement>("[data-layer]")];
   const dayButtons = [...root.querySelectorAll<HTMLButtonElement>("[data-day]")];
-  const header = document.querySelector<HTMLElement>("[data-nav]");
+  const header = document.querySelector<HTMLElement>("header[data-nav]");
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const smallScreen = window.innerWidth < SMALL_VIEWPORT;
 
@@ -174,7 +164,9 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
   let hoverLayer = -1;
   let paper = 0;
   let shownReadout = "";
-  let cycleStart = performance.now();
+  let shown = -1;
+  let lastFrame = 0;
+  let cycleClock = 0;
   const layerAlpha = [1, 1, 1];
 
   layerButtons.forEach((button) => {
@@ -203,14 +195,28 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     root.style.setProperty("--card-top", `${topInset}px`);
   }
 
-  function progress(): number {
+  function scrollProgress(): number {
     const rect = root.getBoundingClientRect();
     return clamp01(-rect.top / Math.max(1, rect.height - height));
   }
 
-  function setNavTheme(p: number): void {
+  /** Moves the drawn progress toward the scroll position, so a wheel step becomes a glide. */
+  function follow(now: number): number {
+    const target = scrollProgress();
+    const dt = Math.min(64, Math.max(0, now - lastFrame));
+    lastFrame = now;
+    if (shown < 0 || reduced) shown = target;
+    const gap = target - shown;
+    if (Math.abs(gap) > MAX_TRAIL) shown = target - Math.sign(gap) * MAX_TRAIL;
+    shown += (target - shown) * (1 - Math.exp(-dt / SCROLL_LAG_MS));
+    if (Math.abs(target - shown) < 0.0003) shown = target;
+    if (target < 0.01) cycleClock += dt;
+    return shown;
+  }
+
+  function setNavTheme(dark: number): void {
     const past = root.getBoundingClientRect().bottom < 64;
-    const theme = past || p < DARK_BY * 0.5 ? "light" : "dark";
+    const theme = past || dark < 0.5 ? "light" : "dark";
     if (theme === navTheme) return;
     navTheme = theme;
     document.documentElement.dataset.nav = theme;
@@ -228,14 +234,14 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     return Math.min(config.chapters.length - 1, Math.max(0, Math.floor((p - CHAPTERS_START) / chapterSpan)));
   }
 
-  function updateClips(chapter: number, now: number): void {
-    const cycleIndex = reduced ? 0 : Math.floor(Math.max(0, now - cycleStart) / HERO_CLIP_MS) % config.heroCycle.length;
+  function updateClips(chapter: number): void {
+    const cycleIndex = reduced ? 0 : Math.floor(cycleClock / HERO_CLIP_MS) % config.heroCycle.length;
     const [cycleClip, cyclePillar] = config.heroCycle[cycleIndex];
     const active = chapter >= 0 ? config.chapters[chapter].clip : cycleClip;
     pillarEls.forEach((el) => el.classList.toggle("is-on", el.dataset.pillar === cyclePillar));
     for (const clip of clips.values()) {
       const target = clip.name === active ? 1 : 0;
-      clip.alpha = reduced ? target : clip.alpha + (target - clip.alpha) * 0.09;
+      clip.alpha = reduced ? target : clip.alpha + (target - clip.alpha) * 0.08;
       if ((clip.alpha > 0.02 || target === 1) && !reduced && visible) {
         if (clip.film.paused) void clip.film.play().catch(() => undefined);
       } else clip.film.pause();
@@ -243,16 +249,18 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
   }
 
   function draw(now: number): void {
-    const p = progress();
+    const p = follow(now);
     const chapter = chapterAt(p);
-    setNavTheme(p);
-    updateClips(chapter, now);
+    updateClips(chapter);
 
-    const shrink = ease(span(p, 0, SHRINK_END));
-    const explode = ease(span(p, EXPLODE_START, EXPLODE_END));
-    const side = ease(span(p, SIDE_START, CHAPTERS_START));
+    const shrinking = span(p, 0, SHRINK_END);
+    const shrink = smooth(shrinking);
+    const dark = smooth(span(shrinking, 0.06, 0.62));
+    const explode = smooth(span(p, EXPLODE_START, EXPLODE_END));
+    const side = smooth(span(p, SIDE_START, CHAPTERS_START));
+    setNavTheme(dark);
 
-    show(hero, 1 - span(p, 0, HERO_OUT));
+    show(hero, 1 - smooth(span(shrinking, 0, 0.34)), -28);
     show(manifesto, Math.min(span(p, MANIFESTO[0], MANIFESTO[1]), 1 - span(p, MANIFESTO[2], MANIFESTO[3])));
     chapterEls.forEach((el, i) => {
       const start = CHAPTERS_START + i * chapterSpan;
@@ -270,7 +278,6 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
-    const dark = span(p, 0, DARK_BY);
     ctx.fillStyle = `rgb(${GROUND.map((c) => Math.round(lerp(255, c, dark))).join(",")})`;
     ctx.fillRect(0, 0, width, height);
 
@@ -292,8 +299,8 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     const originY = cy - h / 2 - (w * squeeze * shear) / 2 - stepY;
     const radius = lerp(14, 16, shrink);
 
-    const at = (depth: number) => ({ x: originX + stepX * depth, y: originY + stepY * depth });
-    const toScreen = (depth: number, u: number, v: number) => {
+    const at = (depth: number): Point => ({ x: originX + stepX * depth, y: originY + stepY * depth });
+    const toScreen = (depth: number, u: number, v: number): Point => {
       const o = at(depth);
       return { x: o.x + u * w * squeeze, y: o.y + v * h + u * w * squeeze * shear };
     };
@@ -311,7 +318,6 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
       ctx.clip();
       ctx.fillStyle = "#111110";
       ctx.fillRect(0, 0, w, h);
-      ctx.imageSmoothingQuality = "high";
       for (const clip of clips.values()) {
         if (clip.alpha < 0.01) continue;
         ctx.globalAlpha = clip.alpha;
@@ -352,6 +358,7 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     const start = CHAPTERS_START + Math.max(0, chapter) * chapterSpan;
     const local = span(p, start, start + chapterSpan);
     const leaving = chapter === config.chapters.length - 1 ? 1 : 1 - span(p, start + chapterSpan - FADE, start + chapterSpan);
+    const arrive = Math.min(span(local, 0, 0.1), leaving);
 
     onPlate(1, () => {
       roundedRect(ctx, w, h, radius);
@@ -362,8 +369,8 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
       if (active) {
         ctx.save();
         ctx.clip();
-        ctx.globalAlpha = Math.min(span(local, 0, 0.1), leaving) * layerAlpha[1];
-        drawSheet(ctx, active.drawing, active.sheet, w, h, day, now, { ...(paper > 0.5 ? PAPER_STYLE : GLASS_STYLE), font });
+        ctx.globalAlpha = arrive * layerAlpha[1];
+        drawPlan(ctx, active.drawing, active.sheet, w, h, { ...(paper > 0.5 ? PLAN_PAPER : PLAN_GLASS), font });
         ctx.restore();
       }
       roundedRect(ctx, w, h, radius);
@@ -388,8 +395,18 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     }
     ctx.setLineDash([]);
 
+    const insightAlpha = layerAlpha[2] * (1 - paper);
     onPlate(2, () => {
       roundedRect(ctx, w, h, radius);
+      if (active) {
+        ctx.save();
+        ctx.clip();
+        ctx.globalAlpha = arrive * insightAlpha;
+        drawInsights(ctx, active.drawing, w, h, day, now, INSIGHT_STYLE);
+        ctx.restore();
+        roundedRect(ctx, w, h, radius);
+      }
+      ctx.globalAlpha = 1;
       ctx.strokeStyle = `rgba(255,255,255,${0.3 * explode * layerAlpha[2]})`;
       ctx.lineWidth = 1;
       ctx.stroke();
@@ -410,7 +427,7 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     const since = BAYS_BY_DAY[day] - BAYS_BY_DAY[0];
     active.tags.forEach((tag, i) => {
       if (tag.days && !tag.days.includes(day)) return;
-      const reveal = Math.min(span(local, 0.1 + i * 0.08, 0.2 + i * 0.08), leaving) * layerAlpha[2] * (1 - paper);
+      const reveal = Math.min(span(local, 0.1 + i * 0.08, 0.2 + i * 0.08), leaving) * insightAlpha;
       if (reveal <= 0) return;
       const colour = tag.tone === "alert" ? ALERT : "#ffffff";
       const text = tag.text.replace("{bays}", String(since));
@@ -454,7 +471,7 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
   }
 
   /** Keeps the layer and day controls under the plate stack as it moves. */
-  function positionControls(toScreen: (depth: number, u: number, v: number) => { x: number; y: number }, side: number): void {
+  function positionControls(toScreen: (depth: number, u: number, v: number) => Point, side: number): void {
     if (!controls) return;
     const left = toScreen(2, 0, 1);
     const right = toScreen(0, 1, 1);
@@ -475,12 +492,12 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     visible = next;
     cancelAnimationFrame(raf);
     if (visible) {
-      cycleStart = performance.now();
+      lastFrame = performance.now();
       raf = requestAnimationFrame(tick);
       return;
     }
     for (const clip of clips.values()) clip.film.pause();
-    setNavTheme(progress());
+    setNavTheme(0);
   }
 
   resize();
@@ -490,7 +507,6 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
   }).observe(pin);
   for (const clip of clips.values()) clip.poster.addEventListener("load", () => draw(performance.now()));
   document.fonts?.ready.then(() => draw(performance.now()));
-  window.addEventListener("scroll", () => { if (!visible) setNavTheme(progress()); }, { passive: true });
 
   new IntersectionObserver((entries) => setVisible(entries.some((e) => e.isIntersecting) && !document.hidden)).observe(root);
   document.addEventListener("visibilitychange", () => {

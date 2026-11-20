@@ -1,17 +1,25 @@
-/** Vector drawing sheets for the story's middle layer: the 2D plan that the footage is mapped to. */
+/**
+ * Vector content for the story's two upper layers.
+ * drawPlan paints the 2D drawing the footage is mapped to, in one colour.
+ * drawInsights paints what Openbox read from the footage, placed on that drawing.
+ */
 
 export type DrawingKind = "progress" | "security" | "safety";
 
-export interface DrawingStyle {
+export interface PlanStyle {
   line: string;
   faint: string;
-  ok: string;
-  okFill: string;
-  coneFill: string;
-  alert: string;
-  alertFill: string;
+  fill: string;
   text: string;
   font: string;
+}
+
+export interface InsightStyle {
+  line: string;
+  ok: string;
+  okFill: string;
+  alert: string;
+  alertFill: string;
 }
 
 /** Steel bays erected by the end of each day, Monday to today, out of BAY_COLS x BAY_ROWS. */
@@ -25,6 +33,15 @@ export const SECURITY_ALERT_DAYS = [3, 6];
 export const SAFETY_FLAG_DAYS = [2];
 
 type Ctx = CanvasRenderingContext2D;
+
+interface Grid {
+  x0: number;
+  y0: number;
+  bw: number;
+  bh: number;
+}
+
+const bayGrid = (w: number, h: number): Grid => ({ x0: w * 0.08, y0: h * 0.17, bw: (w * 0.84) / BAY_COLS, bh: (h * 0.62) / BAY_ROWS });
 
 function hatch(ctx: Ctx, x: number, y: number, w: number, h: number, colour: string): void {
   ctx.save();
@@ -42,38 +59,26 @@ function hatch(ctx: Ctx, x: number, y: number, w: number, h: number, colour: str
   ctx.restore();
 }
 
-function titleBlock(ctx: Ctx, w: number, h: number, sheet: string, s: DrawingStyle): void {
+function label(ctx: Ctx, text: string, x: number, y: number, s: PlanStyle, align: CanvasTextAlign = "left"): void {
+  ctx.font = s.font;
+  ctx.fillStyle = s.text;
+  ctx.textBaseline = "middle";
+  ctx.textAlign = align;
+  ctx.fillText(text, x, y);
+  ctx.textAlign = "left";
+}
+
+function titleBlock(ctx: Ctx, w: number, h: number, sheet: string, s: PlanStyle): void {
   ctx.font = s.font;
   const boxW = ctx.measureText(sheet).width + 20;
   ctx.strokeStyle = s.faint;
+  ctx.lineWidth = 1;
   ctx.strokeRect(w - boxW - 14, h - 36, boxW, 22);
-  ctx.fillStyle = s.text;
-  ctx.textBaseline = "middle";
-  ctx.textAlign = "left";
-  ctx.fillText(sheet, w - boxW - 4, h - 24.5);
+  label(ctx, sheet, w - boxW - 4, h - 24.5, s);
 }
 
-function drawProgress(ctx: Ctx, w: number, h: number, day: number, s: DrawingStyle): void {
-  const x0 = w * 0.08;
-  const y0 = h * 0.17;
-  const bw = (w * 0.84) / BAY_COLS;
-  const bh = (h * 0.62) / BAY_ROWS;
-  const done = BAYS_BY_DAY[day];
-  const before = day > 0 ? BAYS_BY_DAY[day - 1] : 0;
-  for (let k = 0; k < BAY_TOTAL; k++) {
-    const col = BAY_COLS - 1 - Math.floor(k / BAY_ROWS);
-    const row = k % BAY_ROWS;
-    const x = x0 + col * bw;
-    const y = y0 + row * bh;
-    if (k >= done) continue;
-    ctx.fillStyle = s.okFill;
-    ctx.fillRect(x, y, bw, bh);
-    if (k < before) continue;
-    ctx.strokeStyle = s.ok;
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x + 3, y + 3, bw - 6, bh - 6);
-  }
-  hatch(ctx, x0, y0 + bh * 3, bw * 1.5, bh, s.alertFill);
+function planProgress(ctx: Ctx, w: number, h: number, s: PlanStyle): void {
+  const { x0, y0, bw, bh } = bayGrid(w, h);
   ctx.strokeStyle = s.line;
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -88,16 +93,11 @@ function drawProgress(ctx: Ctx, w: number, h: number, day: number, s: DrawingSty
   ctx.stroke();
   ctx.fillStyle = s.line;
   for (let c = 0; c <= BAY_COLS; c++) for (let r = 0; r <= BAY_ROWS; r++) ctx.fillRect(x0 + c * bw - 2.5, y0 + r * bh - 2.5, 5, 5);
-  ctx.font = s.font;
-  ctx.fillStyle = s.text;
-  ctx.textBaseline = "middle";
-  ctx.textAlign = "center";
-  for (let c = 0; c < BAY_COLS; c++) ctx.fillText(String.fromCharCode(65 + c), x0 + (c + 0.5) * bw, y0 - 20);
-  for (let r = 0; r < BAY_ROWS; r++) ctx.fillText(String(r + 1), x0 - 22, y0 + (r + 0.5) * bh);
-  ctx.textAlign = "left";
+  for (let c = 0; c < BAY_COLS; c++) label(ctx, String.fromCharCode(65 + c), x0 + (c + 0.5) * bw, y0 - 20, s, "center");
+  for (let r = 0; r < BAY_ROWS; r++) label(ctx, String(r + 1), x0 - 22, y0 + (r + 0.5) * bh, s, "center");
 }
 
-function drawSecurity(ctx: Ctx, w: number, h: number, day: number, now: number, s: DrawingStyle): void {
+function planSecurity(ctx: Ctx, w: number, h: number, s: PlanStyle): void {
   ctx.strokeStyle = s.line;
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -106,9 +106,9 @@ function drawSecurity(ctx: Ctx, w: number, h: number, day: number, now: number, 
   ctx.lineTo(w * 0.74, h * 0.44);
   ctx.lineTo(w * 0.12, h * 0.38);
   ctx.closePath();
-  ctx.stroke();
-  ctx.fillStyle = s.coneFill;
+  ctx.fillStyle = s.fill;
   ctx.fill();
+  ctx.stroke();
 
   ctx.setLineDash([10, 4, 2, 4]);
   ctx.lineWidth = 1.5;
@@ -126,35 +126,19 @@ function drawSecurity(ctx: Ctx, w: number, h: number, day: number, now: number, 
     ctx.moveTo(w * cx, h * cy);
     ctx.arc(w * cx, h * cy, w * 0.2, a0, a1);
     ctx.closePath();
-    ctx.fillStyle = s.coneFill;
+    ctx.fillStyle = s.fill;
     ctx.fill();
     ctx.strokeStyle = s.faint;
     ctx.stroke();
     ctx.fillStyle = s.line;
     ctx.fillRect(w * cx - 4, h * cy - 4, 8, 8);
   }
-
-  ctx.font = s.font;
-  ctx.fillStyle = s.text;
-  ctx.textBaseline = "middle";
-  ctx.fillText("GATE 2", w * 0.47, h * 0.62);
-  ctx.fillText("BLOCK A", w * 0.16, h * 0.17);
-
-  if (SECURITY_ALERT_DAYS.includes(day)) {
-    const pulse = 0.5 + 0.5 * Math.sin(now / 320);
-    ctx.strokeStyle = s.alert;
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(w * 0.36, h * 0.6, 9 + pulse * 9, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.fillStyle = s.alert;
-    ctx.beginPath();
-    ctx.arc(w * 0.36, h * 0.6, 5, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  label(ctx, "GATE 2", w * 0.47, h * 0.62, s);
+  label(ctx, "BLOCK A", w * 0.16, h * 0.17, s);
+  label(ctx, "FENCE LINE", w * 0.7, h * 0.66, s);
 }
 
-function drawSafety(ctx: Ctx, w: number, h: number, day: number, s: DrawingStyle): void {
+function planSafety(ctx: Ctx, w: number, h: number, s: PlanStyle): void {
   ctx.strokeStyle = s.line;
   ctx.lineWidth = 1;
   ctx.strokeRect(w * 0.36, h * 0.1, w * 0.4, h * 0.44);
@@ -166,12 +150,57 @@ function drawSafety(ctx: Ctx, w: number, h: number, day: number, s: DrawingStyle
     ctx.lineTo(w * (0.36 + i * 0.1), h * 0.54);
   }
   ctx.stroke();
-
-  hatch(ctx, w * 0.08, h * 0.3, w * 0.22, h * 0.26, s.alertFill);
-  ctx.strokeStyle = s.alert;
-  ctx.strokeRect(w * 0.08, h * 0.3, w * 0.22, h * 0.26);
-
+  hatch(ctx, w * 0.08, h * 0.3, w * 0.22, h * 0.26, s.faint);
   ctx.strokeStyle = s.line;
+  ctx.setLineDash([5, 4]);
+  ctx.strokeRect(w * 0.08, h * 0.3, w * 0.22, h * 0.26);
+  ctx.setLineDash([]);
+  label(ctx, "EXCLUSION ZONE", w * 0.09, h * 0.26, s);
+  label(ctx, "BLOCK B", w * 0.4, h * 0.17, s);
+}
+
+/** The drawing layer: plan geometry only, in the sheet's single colour. */
+export function drawPlan(ctx: Ctx, kind: DrawingKind, sheet: string, w: number, h: number, style: PlanStyle): void {
+  if (kind === "progress") planProgress(ctx, w, h, style);
+  else if (kind === "security") planSecurity(ctx, w, h, style);
+  else planSafety(ctx, w, h, style);
+  titleBlock(ctx, w, h, sheet, style);
+}
+
+function insightProgress(ctx: Ctx, w: number, h: number, day: number, s: InsightStyle): void {
+  const { x0, y0, bw, bh } = bayGrid(w, h);
+  const done = BAYS_BY_DAY[day];
+  const before = day > 0 ? BAYS_BY_DAY[day - 1] : 0;
+  for (let k = 0; k < done; k++) {
+    const x = x0 + (BAY_COLS - 1 - Math.floor(k / BAY_ROWS)) * bw;
+    const y = y0 + (k % BAY_ROWS) * bh;
+    ctx.fillStyle = s.okFill;
+    ctx.fillRect(x, y, bw, bh);
+    if (k < before) continue;
+    ctx.strokeStyle = s.ok;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x + 3, y + 3, bw - 6, bh - 6);
+  }
+  hatch(ctx, x0, y0 + bh * 3, bw * 1.5, bh, s.alertFill);
+}
+
+function insightSecurity(ctx: Ctx, w: number, h: number, day: number, now: number, s: InsightStyle): void {
+  if (!SECURITY_ALERT_DAYS.includes(day)) return;
+  const pulse = 0.5 + 0.5 * Math.sin(now / 320);
+  ctx.strokeStyle = s.alert;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(w * 0.36, h * 0.6, 9 + pulse * 9, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = s.alert;
+  ctx.beginPath();
+  ctx.arc(w * 0.36, h * 0.6, 5, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function insightSafety(ctx: Ctx, w: number, h: number, day: number, s: InsightStyle): void {
+  ctx.strokeStyle = s.line;
+  ctx.lineWidth = 1;
   ctx.setLineDash([6, 5]);
   ctx.beginPath();
   ctx.moveTo(w * 0.04, h * 0.94);
@@ -192,17 +221,11 @@ function drawSafety(ctx: Ctx, w: number, h: number, day: number, s: DrawingStyle
     ctx.fill();
     ctx.stroke();
   }
-  ctx.lineWidth = 1;
-  ctx.font = s.font;
-  ctx.fillStyle = s.text;
-  ctx.textBaseline = "middle";
-  ctx.fillText("EXCLUSION ZONE", w * 0.09, h * 0.26);
-  ctx.fillText("WALK ROUTE", w * 0.62, h * 0.8);
 }
 
-export function drawSheet(ctx: Ctx, kind: DrawingKind, sheet: string, w: number, h: number, day: number, now: number, style: DrawingStyle): void {
-  if (kind === "progress") drawProgress(ctx, w, h, day, style);
-  else if (kind === "security") drawSecurity(ctx, w, h, day, now, style);
-  else drawSafety(ctx, w, h, day, style);
-  titleBlock(ctx, w, h, sheet, style);
+/** The insights layer: what was found on the chosen day, placed on the plan. */
+export function drawInsights(ctx: Ctx, kind: DrawingKind, w: number, h: number, day: number, now: number, style: InsightStyle): void {
+  if (kind === "progress") insightProgress(ctx, w, h, day, style);
+  else if (kind === "security") insightSecurity(ctx, w, h, day, now, style);
+  else insightSafety(ctx, w, h, day, style);
 }

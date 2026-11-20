@@ -1,7 +1,7 @@
 /** Tunables shared by the hero scene modules. World units are roughly 3 m. */
-export const SIGNAL = "217, 255, 66";
+export const SIGNAL = "143, 188, 255";
 export const WHITE = "255, 255, 255";
-export const ALERT = "255, 120, 90";
+export const ALERT = "255, 106, 61";
 export const GROUND = "12, 12, 11";
 export const MONO = "'IBM Plex Mono', ui-monospace, monospace";
 
