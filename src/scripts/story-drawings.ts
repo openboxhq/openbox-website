@@ -29,8 +29,9 @@ const BAY_ROWS = 4;
 export const BAY_TOTAL = BAY_COLS * BAY_ROWS;
 /** Days, Monday = 0, with an after-hours vehicle at the gate. */
 export const SECURITY_ALERT_DAYS = [3, 6];
-/** Days with a hard hat missing on the walk. */
-export const SAFETY_FLAG_DAYS = [2];
+/** People checked on the walk each day, Monday to today. All pass: the footage shows real people. */
+export const PEOPLE_BY_DAY = [3, 2, 4, 2, 3, 3, 2];
+const PEOPLE_AT: readonly (readonly [number, number])[] = [[0.47, 0.63], [0.63, 0.61], [0.82, 0.74], [0.34, 0.8]];
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -211,10 +212,9 @@ function insightSafety(ctx: Ctx, w: number, h: number, day: number, s: InsightSt
   ctx.fillStyle = s.line;
   ctx.fillRect(w * 0.56 - 4, h * 0.72 - 4, 8, 8);
 
-  const flagged = SAFETY_FLAG_DAYS.includes(day);
-  for (const [px, py, bad] of [[0.47, 0.63, flagged], [0.63, 0.61, false]] as const) {
-    ctx.strokeStyle = bad ? s.alert : s.ok;
-    ctx.fillStyle = bad ? s.alertFill : s.okFill;
+  for (const [px, py] of PEOPLE_AT.slice(0, PEOPLE_BY_DAY[day])) {
+    ctx.strokeStyle = s.ok;
+    ctx.fillStyle = s.okFill;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.arc(w * px, h * py, 9, 0, Math.PI * 2);

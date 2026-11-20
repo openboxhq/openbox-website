@@ -47,3 +47,5 @@ Run the same checks locally with `npm run ci`.
 ## License
 
 Copyright © 2026 Dragonfruit AI. All rights reserved. This repository is public so the site can be served from GitHub Pages; it is not open source.
+
+The footage and fonts belong to their own creators and are used under their own licences. They are listed in [`public/media/CREDITS.md`](public/media/CREDITS.md).

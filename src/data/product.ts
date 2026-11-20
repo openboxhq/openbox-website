@@ -19,7 +19,7 @@ export interface Pillar {
   /** Title block on the drawing layer. */
   sheet: string;
   drawing: DrawingKind;
-  /** Findings on the insights layer. */
+  /** Findings on the insights layer. Tags over footage of real people stay neutral: no person is shown as at fault. */
   tags: FilmTag[];
   /** One status line per day, Monday to today. */
   readouts: string[];
@@ -59,12 +59,11 @@ export const PILLARS: Pillar[] = [
     sheet: "A-110 · LOGISTICS PLAN",
     drawing: "safety",
     tags: [
-      { x: 0.26, y: 0.2, text: "HARD HAT · OK", days: [0, 1, 3, 4, 5, 6] },
-      { x: 0.26, y: 0.2, text: "HARD HAT MISSING", tone: "alert", days: [2] },
+      { x: 0.26, y: 0.2, text: "HARD HAT · OK" },
       { x: 0.6, y: 0.42, text: "HI-VIS · OK" },
       { x: 0.06, y: 0.82, text: "2 PEOPLE · OUTSIDE EXCLUSION ZONE" },
     ],
-    readouts: [0, 1, 2, 3, 4, 5, 6].map((d) => (d === 2 ? "1 PPE flag: hard hat missing" : "2 people checked, no flags")),
+    readouts: [3, 2, 4, 2, 3, 3, 2].map((n) => `${n} people checked, no flags`),
   },
   {
     id: "security",
