@@ -1,20 +1,28 @@
 ---
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav.astro";
-import HeroVision from "../components/HeroVision.astro";
-import Pillars from "../components/Pillars.astro";
+import HeroFilm from "../components/HeroFilm.astro";
+import Manifesto from "../components/Manifesto.astro";
+import Chapters from "../components/Chapters.astro";
+import Verticals from "../components/Verticals.astro";
 import Pilot from "../components/Pilot.astro";
 import Footer from "../components/Footer.astro";
 ---
 <Base
   title="Openbox: rewind the site to any day"
-  description="Openbox turns the cameras on your construction site into a live record of progress, safety and security. A Dragonfruit AI company."
+  description="Openbox turns headcams, drones and site cameras into one dated record of your construction site: progress, security and safety. A Dragonfruit AI company."
 >
   <Nav overlay />
-  <main>
-    <HeroVision />
-    <Pillars />
+  <main class="night">
+    <HeroFilm />
+    <Manifesto />
+    <Chapters />
+    <Verticals />
     <Pilot />
   </main>
-  <Footer />
+  <Footer dark />
 </Base>
+
+<style>
+  .night { background: #0b0b0a; color: #fff; }
+</style>

@@ -1,0 +1,98 @@
+---
+import { DEMO_HREF, DEMO_IS_EXTERNAL } from "../data/site";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const externalAttrs = DEMO_IS_EXTERNAL ? { target: "_blank", rel: "noopener" } : {};
+const days = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "TODAY"];
+---
+<section class="hf">
+  <canvas
+    class="hf-canvas"
+    aria-hidden="true"
+    data-film={`${base}media/hero.mp4`}
+    data-film-small={`${base}media/hero-sm.mp4`}
+    data-edge={`${base}media/hero-edge.mp4`}
+    data-poster={`${base}media/hero.jpg`}
+    data-mode="cover"
+  ></canvas>
+  <div class="hf-shade" aria-hidden="true"></div>
+  <div class="wrap hf-copy">
+    <p class="eyebrow hf-kicker"><span class="signal-dot"></span>Construction intelligence</p>
+    <h1 class="display hf-title">Rewind the site<br /><em>to any day.</em></h1>
+    <p class="hf-lede">Visual change control for the site itself. Headcams, drones and site cameras keep every day on one timeline of progress, security and safety.</p>
+    <div class="hf-cta">
+      <a class="btn hf-primary" href={DEMO_HREF} {...externalAttrs}>Book a demo</a>
+      <a class="hf-link" href="#pilot">Free 30-day pilot →</a>
+    </div>
+  </div>
+  <div class="wrap hf-hud mono" aria-hidden="true">
+    <span class="hud-feed"><i class="rec"></i>DRONE 02 · LEVEL 7 DECK</span>
+    <ol class="hud-days">
+      {days.map((d) => <li>{d}</li>)}
+    </ol>
+  </div>
+</section>
+
+<script>
+  import { startAllFilms } from "../scripts/film";
+  startAllFilms();
+</script>
+
+<style>
+  .hf {
+    position: relative; isolation: isolate; overflow: hidden;
+    min-height: max(660px, 100svh);
+    display: grid; align-content: center;
+    background: #0b0b0a; color: #fff;
+  }
+  .hf-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2; }
+  .hf-shade {
+    position: absolute; inset: 0; z-index: -1;
+    background:
+      linear-gradient(90deg, rgba(8,8,7,.82) 0%, rgba(8,8,7,.5) 38%, rgba(8,8,7,0) 68%),
+      linear-gradient(0deg, #0b0b0a 0%, rgba(11,11,10,.55) 16%, rgba(11,11,10,0) 36%),
+      linear-gradient(180deg, rgba(8,8,7,.6) 0%, rgba(8,8,7,0) 22%);
+  }
+  .hf-copy { width: 100%; padding-top: 96px; padding-bottom: 96px; }
+  .hf-kicker { display: inline-flex; align-items: center; gap: 10px; color: rgba(255,255,255,.7); margin: 0 0 22px; }
+  .hf-title { font-size: clamp(56px, 9vw, 132px); line-height: .94; margin: 0 0 26px; text-shadow: 0 2px 40px rgba(0,0,0,.35); }
+  .hf-title em { color: var(--signal); }
+  .hf-lede { font-size: clamp(17px, 1.6vw, 21px); color: rgba(255,255,255,.82); max-width: 36ch; margin: 0 0 34px; text-wrap: pretty; }
+  .hf-cta { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
+  .hf-primary { background: #fff; color: var(--ink); }
+  .hf-primary:hover { background: var(--signal); }
+  .hf-link { color: rgba(255,255,255,.86); text-decoration: none; font-size: 15px; }
+  .hf-link:hover { color: #fff; }
+
+  .hf-hud {
+    position: absolute; left: 0; right: 0; bottom: 28px;
+    display: flex; align-items: center; justify-content: space-between; gap: 32px;
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.6);
+  }
+  .hud-feed { display: inline-flex; align-items: center; gap: 9px; white-space: nowrap; }
+  .rec { width: 6px; height: 6px; border-radius: 50%; background: #ff785a; animation: hf-blink 1.6s steps(2) infinite; }
+  @keyframes hf-blink { 50% { opacity: .25; } }
+  .hud-days {
+    list-style: none; margin: 0; padding: 12px 0 0; flex: 0 1 520px;
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border-top: 1px solid rgba(255,255,255,.28); position: relative;
+  }
+  .hud-days li { position: relative; text-align: right; color: rgba(255,255,255,.45); }
+  .hud-days li::before { content: ""; position: absolute; right: 0; top: -15px; width: 1px; height: 6px; background: rgba(255,255,255,.45); }
+  .hud-days li:last-child { color: var(--signal); }
+  .hud-days li:last-child::before { background: var(--signal); height: 10px; top: -17px; }
+  .hud-days::after {
+    content: ""; position: absolute; top: -4px; left: 0; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--signal); box-shadow: 0 0 0 4px rgba(217,255,66,.22);
+    animation: hf-scrub 9s linear infinite;
+  }
+  @keyframes hf-scrub { from { left: 0; } to { left: calc(100% - 7px); } }
+
+  @media (max-width: 760px) {
+    .hf { align-content: start; }
+    .hf-shade { background: linear-gradient(180deg, rgba(8,8,7,.86) 0%, rgba(8,8,7,.6) 50%, rgba(8,8,7,.25) 78%, #0b0b0a 100%); }
+    .hf-copy { padding-top: 156px; padding-bottom: 120px; }
+    .hud-feed { display: none; }
+    .hud-days { flex-basis: 100%; }
+  }
+</style>
