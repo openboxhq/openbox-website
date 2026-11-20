@@ -71,7 +71,7 @@ const links = [
 </header>
 
 <script>
-  const top = document.querySelector<HTMLElement>("[data-nav].is-overlay");
+  const top = document.querySelector<HTMLElement>("[data-nav]");
   if (top) {
     const update = () => top.classList.toggle("is-solid", window.scrollY > 24);
     update();
@@ -99,10 +99,11 @@ const links = [
 </script>
 
 <style>
-  .top { position: sticky; top: 0; z-index: 30; }
+  .top { position: relative; z-index: 30; }
   .top.is-overlay { position: fixed; left: 0; right: 0; }
 
-  .announce { background: var(--night); color: #d8d8d1; font-size: 13.5px; }
+  .announce { background: var(--night); color: #d8d8d1; font-size: 13.5px; max-height: 80px; overflow: hidden; transition: max-height .3s ease, opacity .2s ease; }
+  .is-overlay.is-solid .announce { max-height: 0; opacity: 0; border-bottom-width: 0; }
   .is-overlay .announce { background: rgba(8, 8, 7, .55); border-bottom: 1px solid rgba(255,255,255,.06); }
   .announce-row { display: flex; gap: 14px; align-items: center; justify-content: center; padding-block: 9px; flex-wrap: wrap; text-align: center; }
   .announce a { text-decoration: none; display: inline-flex; align-items: center; gap: 10px; color: #d8d8d1; }
