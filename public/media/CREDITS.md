@@ -4,9 +4,11 @@ Everything on the site that Openbox did not make itself. Last reviewed 2026-11-2
 
 ## Footage
 
-All clips come from Pexels and are used under the Pexels licence (https://www.pexels.com/license/):
-free for commercial use, edits allowed, no credit required. Downloaded on 2026-11-20.
-The creators keep the copyright. `scripts/build-footage.sh` rebuilds every file below from the sources.
+All clips come from Pexels and are used under the Pexels licence (https://www.pexels.com/license/)
+and Terms of Service (https://www.pexels.com/terms-of-service/, version of 2026-10-20): free for
+commercial use, edits allowed, no credit required. Downloaded on 2026-11-20; each clip page showed
+"License: Free" on that date. The creators keep the copyright.
+`scripts/build-footage.sh` rebuilds every file below from the sources.
 
 | Files | Clip | Creator | Source |
 |---|---|---|---|
@@ -15,8 +17,8 @@ The creators keep the copyright. `scripts/build-footage.sh` rebuilds every file 
 | security | Aerial View of Construction Site with Excavators | David Pickup | https://www.pexels.com/video/aerial-view-of-construction-site-with-excavators-29568504/ |
 | safety | Workers Talking on Construction | Waleed Talat | https://www.pexels.com/video/workers-talking-on-construction-13569683/ |
 
-The Pexels licence does not cover the trademarks, property or people that appear in a clip, so each
-clip is edited to keep them out:
+Pexels does not warrant model or property releases, and its Terms bar commercial use of content that
+shows trademarks, logos or brands. Each clip is therefore edited to keep those out:
 
 - **hero:** cropped to 76% so the crane cab plates and a painted wall sign are out of frame.
 - **progress:** cropped to 94% so a lorry trailer with a logo on the motorway is out of frame. In the
@@ -24,6 +26,9 @@ clip is edited to keep them out:
 - **security:** a daytime clip graded to a night-camera look. It uses only seconds 4 to 7.5, where the
   machines are small enough that their owner's lettering cannot be read, and before houses come into view.
 - **safety:** uses only the seconds where both workers face away from the camera.
+
+If anyone raises a claim about a clip, the Pexels Terms require that we stop using it at once:
+remove its files from `public/media`, redeploy, and tell Pexels.
 
 Rules for anything drawn over this footage:
 
@@ -33,14 +38,17 @@ Rules for anything drawn over this footage:
 
 ## Fonts
 
-Self-hosted through the `@fontsource` packages, all under the SIL Open Font License 1.1, which
-permits use and redistribution on a commercial website. The licence text ships in each package.
+All three are under the SIL Open Font License 1.1, which permits self-hosting on a commercial
+website. The licence text for each is published in `/licenses/`.
 
-| Font | Copyright |
-|---|---|
-| Instrument Serif | The Instrument Serif Project Authors |
-| Inter Tight | The Inter Project Authors |
-| IBM Plex Mono | IBM Corp. |
+| Font | Copyright | Files | Licence text |
+|---|---|---|---|
+| Instrument Serif | The Instrument Serif Project Authors | `@fontsource/instrument-serif` | licenses/instrument-serif-OFL.txt |
+| Inter Tight | The Inter Project Authors | `@fontsource-variable/inter-tight` | licenses/inter-tight-OFL.txt |
+| IBM Plex Mono | IBM Corp., reserved font name "Plex" | IBM's own Latin-1 files in `src/fonts/ibm-plex-mono` | licenses/ibm-plex-mono-OFL.txt |
+
+IBM reserves the name "Plex", so a modified or re-subsetted copy may not carry it. The site ships
+IBM's own files unchanged. Do not swap them for a re-subsetted build.
 
 ## Photos and logos
 

@@ -1,8 +1,22 @@
 @import "@fontsource/instrument-serif/400.css";
 @import "@fontsource/instrument-serif/400-italic.css";
 @import "@fontsource-variable/inter-tight/wght.css";
-@import "@fontsource/ibm-plex-mono/400.css";
-@import "@fontsource/ibm-plex-mono/500.css";
+
+/* IBM Plex Mono: IBM's own Latin-1 files, unmodified, as its reserved font name requires. */
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/ibm-plex-mono/IBMPlexMono-Regular-Latin1.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/ibm-plex-mono/IBMPlexMono-Medium-Latin1.woff2") format("woff2");
+}
 
 /* Openbox: black and white grounds, drawing blue for plans and live states, orange for alerts. */
 :root {
