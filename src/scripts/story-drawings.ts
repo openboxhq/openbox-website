@@ -27,8 +27,10 @@ export const BAYS_BY_DAY = [2, 3, 4, 5, 6, 7, 8];
 const BAY_COLS = 6;
 const BAY_ROWS = 4;
 export const BAY_TOTAL = BAY_COLS * BAY_ROWS;
-/** Days, Monday = 0, with an after-hours vehicle at the gate. */
+/** Days, Monday = 0, with plant in use after hours. */
 export const SECURITY_ALERT_DAYS = [3, 6];
+/** Where the working excavator sits in the security footage, 0 to 1 from the top-left. */
+const PLANT_AT = [0.63, 0.8] as const;
 /** People checked on the walk each day, Monday to today. All pass: the footage shows real people. */
 export const PEOPLE_BY_DAY = [3, 2, 4, 2, 3, 3, 2];
 const PEOPLE_AT: readonly (readonly [number, number])[] = [[0.47, 0.63], [0.63, 0.61], [0.82, 0.74], [0.34, 0.8]];
@@ -101,28 +103,35 @@ function planProgress(ctx: Ctx, w: number, h: number, s: PlanStyle): void {
 function planSecurity(ctx: Ctx, w: number, h: number, s: PlanStyle): void {
   ctx.strokeStyle = s.line;
   ctx.lineWidth = 1;
+  for (const [x, y, pw, ph, name] of [[0.52, 0.18, 0.28, 0.12, "PLOT 4"], [0.75, 0.4, 0.17, 0.12, "PLOT 5"], [0.05, 0.34, 0.29, 0.16, "PLOT 3"]] as const) {
+    ctx.fillStyle = s.fill;
+    ctx.fillRect(w * x, h * y, w * pw, h * ph);
+    ctx.strokeRect(w * x, h * y, w * pw, h * ph);
+    label(ctx, name, w * x + 8, h * y + 12, s);
+  }
+
+  ctx.strokeStyle = s.faint;
+  ctx.setLineDash([8, 6]);
   ctx.beginPath();
-  ctx.moveTo(w * 0.12, h * 0.1);
-  ctx.lineTo(w * 0.74, h * 0.14);
-  ctx.lineTo(w * 0.74, h * 0.44);
-  ctx.lineTo(w * 0.12, h * 0.38);
-  ctx.closePath();
-  ctx.fillStyle = s.fill;
-  ctx.fill();
+  ctx.moveTo(w * 0.47, 0);
+  ctx.lineTo(w * 0.47, h * 0.34);
+  ctx.lineTo(w, h * 0.34);
+  ctx.moveTo(w * 0.47, h * 0.34);
+  ctx.quadraticCurveTo(w * 0.46, h * 0.62, w * 0.36, h);
   ctx.stroke();
 
+  ctx.strokeStyle = s.line;
   ctx.setLineDash([10, 4, 2, 4]);
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(w * 0.04, h * 0.46);
-  ctx.lineTo(w * 0.46, h * 0.55);
-  ctx.moveTo(w * 0.54, h * 0.565);
-  ctx.lineTo(w * 0.96, h * 0.62);
+  ctx.moveTo(w * 0.03, h * 0.05);
+  ctx.lineTo(w * 0.03, h * 0.94);
+  ctx.lineTo(w * 0.97, h * 0.94);
   ctx.stroke();
   ctx.setLineDash([]);
   ctx.lineWidth = 1;
 
-  for (const [cx, cy, a0, a1] of [[0.92, 0.9, 3.5, 4.3], [0.06, 0.86, 5.1, 5.9]] as const) {
+  for (const [cx, cy, a0, a1] of [[0.95, 0.9, 3.4, 4.2], [0.05, 0.08, 0.25, 1.05]] as const) {
     ctx.beginPath();
     ctx.moveTo(w * cx, h * cy);
     ctx.arc(w * cx, h * cy, w * 0.2, a0, a1);
@@ -134,9 +143,9 @@ function planSecurity(ctx: Ctx, w: number, h: number, s: PlanStyle): void {
     ctx.fillStyle = s.line;
     ctx.fillRect(w * cx - 4, h * cy - 4, 8, 8);
   }
-  label(ctx, "GATE 2", w * 0.47, h * 0.62, s);
-  label(ctx, "BLOCK A", w * 0.16, h * 0.17, s);
-  label(ctx, "FENCE LINE", w * 0.7, h * 0.66, s);
+  label(ctx, "GATE 2", w * 0.49, h * 0.06, s);
+  label(ctx, "HAUL ROAD", w * 0.5, h * 0.37, s);
+  label(ctx, "FENCE LINE", w * 0.07, h * 0.9, s);
 }
 
 function planSafety(ctx: Ctx, w: number, h: number, s: PlanStyle): void {
@@ -191,11 +200,11 @@ function insightSecurity(ctx: Ctx, w: number, h: number, day: number, now: numbe
   ctx.strokeStyle = s.alert;
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.arc(w * 0.36, h * 0.6, 9 + pulse * 9, 0, Math.PI * 2);
+  ctx.arc(w * PLANT_AT[0], h * PLANT_AT[1], 9 + pulse * 9, 0, Math.PI * 2);
   ctx.stroke();
   ctx.fillStyle = s.alert;
   ctx.beginPath();
-  ctx.arc(w * 0.36, h * 0.6, 5, 0, Math.PI * 2);
+  ctx.arc(w * PLANT_AT[0], h * PLANT_AT[1], 5, 0, Math.PI * 2);
   ctx.fill();
 }
 

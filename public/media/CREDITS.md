@@ -12,7 +12,7 @@ The creators keep the copyright. `scripts/build-footage.sh` rebuilds every file 
 |---|---|---|---|
 | hero, hero-sm, hero-wide | Drone Shot of the Construction Site | K | https://www.pexels.com/video/drone-shot-of-the-construction-site-4404097/ |
 | progress, progress-wide | Aerial View of Construction Site with Steel Frame | David Pickup | https://www.pexels.com/video/aerial-view-of-construction-site-with-steel-frame-33893697/ |
-| security | Empty City Street at Night with Construction | Altaf Shah | https://www.pexels.com/video/city-street-at-night-with-construction-39644096/ |
+| security | Aerial View of Construction Site with Excavators | David Pickup | https://www.pexels.com/video/aerial-view-of-construction-site-with-excavators-29568504/ |
 | safety | Workers Talking on Construction | Waleed Talat | https://www.pexels.com/video/workers-talking-on-construction-13569683/ |
 
 The Pexels licence does not cover the trademarks, property or people that appear in a clip, so each
@@ -21,7 +21,8 @@ clip is edited to keep them out:
 - **hero:** cropped to 76% so the crane cab plates and a painted wall sign are out of frame.
 - **progress:** cropped to 94% so a lorry trailer with a logo on the motorway is out of frame. In the
   wide still, two small site cabins with a hire company's mark are patched out.
-- **security:** the hoarding banners and the passing van are filled to blank white panels.
+- **security:** a daytime clip graded to a night-camera look. It uses only seconds 4 to 7.5, where the
+  machines are small enough that their owner's lettering cannot be read, and before houses come into view.
 - **safety:** uses only the seconds where both workers face away from the camera.
 
 Rules for anything drawn over this footage:
