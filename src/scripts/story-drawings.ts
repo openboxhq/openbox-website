@@ -22,7 +22,7 @@ export interface InsightStyle {
   alertFill: string;
 }
 
-/** Steel bays erected by the end of each day, Monday to today, out of BAY_COLS x BAY_ROWS. */
+/** Steel bays complete by the end of each day, Monday to today, out of BAY_COLS x BAY_ROWS. */
 export const BAYS_BY_DAY = [2, 3, 4, 5, 6, 7, 8];
 const BAY_COLS = 6;
 const BAY_ROWS = 4;

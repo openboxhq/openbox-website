@@ -44,7 +44,7 @@ export const PILLARS: Pillar[] = [
       { x: 0.44, y: 0.47, text: "+{bays} BAYS SINCE MONDAY" },
       { x: 0.06, y: 0.76, text: "SLAB · ZONE 2 NOT STARTED", tone: "alert" },
     ],
-    readouts: [2, 3, 4, 5, 6, 7, 8].map((n) => `${n} of 24 bays erected`),
+    readouts: [2, 3, 4, 5, 6, 7, 8].map((n) => `${n} of 24 bays complete`),
   },
   {
     id: "safety",

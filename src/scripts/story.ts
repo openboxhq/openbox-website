@@ -10,7 +10,7 @@ export interface FilmTag {
   /** Position on the plate, 0 to 1 from the top-left. */
   x: number;
   y: number;
-  /** "{bays}" is replaced with the bays erected since Monday. */
+  /** "{bays}" is replaced with the bays completed since Monday. */
   text: string;
   tone?: "ok" | "alert";
   /** Days, Monday = 0, on which the tag shows; every day when omitted. */
