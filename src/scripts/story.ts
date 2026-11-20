@@ -31,6 +31,8 @@ export interface StoryConfig {
   mediaBase: string;
   /** Clips the hero cycles through, as [clip, pillar id]. */
   heroCycle: [string, string][];
+  /** Lighter clips to use in place of the hero's large ones on small screens. */
+  smallScreenClips: Record<string, string>;
   chapters: StoryChapter[];
 }
 
@@ -149,14 +151,14 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const smallScreen = window.innerWidth < SMALL_VIEWPORT;
 
-  const names = [...new Set([...config.heroCycle.map(([clip]) => clip), ...config.chapters.map((c) => c.clip)])];
+  const heroCycle = config.heroCycle.map(([clip, pillar]): [string, string] => [smallScreen ? (config.smallScreenClips[clip] ?? clip) : clip, pillar]);
+  const names = [...new Set([...heroCycle.map(([clip]) => clip), ...config.chapters.map((c) => c.clip)])];
   const clips = new Map<string, Clip>();
   for (const name of names) {
     const poster = new Image();
     poster.decoding = "async";
     poster.src = `${config.mediaBase}${name}.jpg`;
-    const file = smallScreen && name === "hero" ? "hero-sm" : name;
-    clips.set(name, { name, film: hiddenVideo(`${config.mediaBase}${file}.mp4`, pin), poster, alpha: name === config.heroCycle[0][0] ? 1 : 0 });
+    clips.set(name, { name, film: hiddenVideo(`${config.mediaBase}${name}.mp4`, pin), poster, alpha: name === heroCycle[0][0] ? 1 : 0 });
   }
 
   const chapterSpan = (1 - CHAPTERS_START) / config.chapters.length;
@@ -176,6 +178,7 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
   let lastFrame = 0;
   let cycleClock = 0;
   let cycleIndex = 0;
+  let activeClip = "";
   let navHeight = 64;
   const layerAlpha = [1, 1, 1];
 
@@ -246,9 +249,14 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
   }
 
   function updateClips(chapter: number): void {
-    cycleIndex = reduced ? 0 : Math.floor(cycleClock / HERO_CLIP_MS) % config.heroCycle.length;
-    const [cycleClip, cyclePillar] = config.heroCycle[cycleIndex];
+    cycleIndex = reduced ? 0 : Math.floor(cycleClock / HERO_CLIP_MS) % heroCycle.length;
+    const [cycleClip, cyclePillar] = heroCycle[cycleIndex];
     const active = chapter >= 0 ? config.chapters[chapter].clip : cycleClip;
+    if (active !== activeClip) {
+      const next = clips.get(active);
+      if (next && chapter < 0 && next.alpha < 0.05 && ready(next.film)) next.film.currentTime = 0;
+      activeClip = active;
+    }
     pillarEls.forEach((el) => el.classList.toggle("is-on", el.dataset.pillar === cyclePillar));
     for (const clip of clips.values()) {
       const target = clip.name === active ? 1 : 0;

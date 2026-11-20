@@ -1,12 +1,13 @@
 ---
-import { DAYS, PILLARS } from "../data/product";
+import { DAYS, PILLARS, SMALL_SCREEN_MEDIA } from "../data/product";
 import { CHAPTERS_START, type StoryConfig } from "../scripts/story";
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const LAYERS = ["Footage", "Drawing", "Insights"];
 const config: StoryConfig = {
   mediaBase: `${base}media/`,
-  heroCycle: PILLARS.map((p) => [p.id === "progress" ? "hero" : p.media, p.id]),
+  heroCycle: PILLARS.map((p) => [p.heroMedia ?? p.media, p.id]),
+  smallScreenClips: SMALL_SCREEN_MEDIA,
   chapters: PILLARS.map((p) => ({ clip: p.media, source: p.source, sheet: p.sheet, drawing: p.drawing, tags: p.tags, readouts: p.readouts })),
 };
 const anchorAt = (i: number) => CHAPTERS_START + ((1 - CHAPTERS_START) / PILLARS.length) * (i + 0.3);

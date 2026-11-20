@@ -78,6 +78,10 @@ film progress 33893697.mp4 0   15  1   1280 720  24 "$PROGRESS_CROP" ""
 # Seconds 4 to 7.5 only: earlier the machines fill the frame and their lettering is readable,
 # later the view opens onto houses and parked cars. Slowed three times, with in-between frames built.
 film security 29568504.mp4 4   3.5 3   1280 720  24 "" "$NIGHT_GRADE" "$SMOOTH"
+# The hero shows the night clip across the full width, so it gets a full-HD version. At that size the
+# machines' lettering is readable until second 8, when the nearest excavator leaves the frame.
+# It plays at 1.25 times slower, which maps each 30 fps source frame to one 24 fps frame.
+film security-hero 29568504.mp4 8 4.5 1.25 1920 1080 25 "" "$NIGHT_GRADE"
 # The walk uses the seconds where both workers face away, slowed from 60 to 24 frames a second.
 # The left worker's foot lands 4.2 seconds into the source; the frame is held there for 3.5 seconds.
 walk safety   13569683.mp4 1.2 4.2 4.8 2.5 3.5 1280 720 24

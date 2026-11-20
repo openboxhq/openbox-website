@@ -14,6 +14,8 @@ export interface Pillar {
   capture: string;
   /** Basename of the film loop in public/media. */
   media: string;
+  /** A larger loop for the full-width hero, when the chapter loop is too small for it. */
+  heroMedia?: string;
   /** Label on the footage layer. */
   source: string;
   /** Title block on the drawing layer. */
@@ -36,6 +38,7 @@ export const PILLARS: Pillar[] = [
     specs: ["Drone surveys and site walks", "Mapped to your drawings", "Compare any two days"],
     capture: "Drones",
     media: "progress",
+    heroMedia: "hero",
     source: "DRONE 02",
     sheet: "S-201 · STEEL FRAMING PLAN",
     drawing: "progress",
@@ -74,6 +77,7 @@ export const PILLARS: Pillar[] = [
     specs: ["People, vehicles and plant after hours", "Placed on the site plan", "Reviewed by a person"],
     capture: "Site cameras",
     media: "security",
+    heroMedia: "security-hero",
     source: "MAST CAM 04",
     sheet: "C-101 · SITE AND PERIMETER PLAN",
     drawing: "security",
@@ -85,6 +89,9 @@ export const PILLARS: Pillar[] = [
     readouts: [0, 1, 2, 3, 4, 5, 6].map((d) => ([3, 6].includes(d) ? "1 after-hours alert, reviewed and sent" : "No alerts")),
   },
 ];
+
+/** On small screens the hero swaps its large loops for these lighter ones. */
+export const SMALL_SCREEN_MEDIA: Record<string, string> = { hero: "hero-sm", "security-hero": "security" };
 
 export const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Today"];
 
