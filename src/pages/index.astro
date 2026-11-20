@@ -1,24 +1,20 @@
 ---
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav.astro";
-import Hero from "../components/Hero.astro";
-import Platform from "../components/Platform.astro";
-import Compare from "../components/Compare.astro";
-import Features from "../components/Features.astro";
-import Sections from "../components/Sections.astro";
+import HeroVision from "../components/HeroVision.astro";
+import Pillars from "../components/Pillars.astro";
+import Pilot from "../components/Pilot.astro";
 import Footer from "../components/Footer.astro";
 ---
 <Base
-  title="Openbox — A living digital twin for every jobsite"
-  description="Openbox is a digital twin for construction sites: every walk, drone flight and site camera on your plans, milestones verified by a person, and after-hours alerts on the same cameras."
+  title="Openbox: every jobsite, understood"
+  description="Openbox turns the cameras on your construction site into a live record of progress, safety and security. A Dragonfruit AI company."
 >
-  <Nav />
+  <Nav overlay />
   <main>
-    <Hero />
-    <Platform />
-    <Compare />
-    <Features />
-    <Sections />
+    <HeroVision />
+    <Pillars />
+    <Pilot />
   </main>
   <Footer />
 </Base>
