@@ -1,18 +1,16 @@
 ---
+import { PILLARS } from "../data/product";
+
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
-const pillars = [
-  { n: "01", k: "Progress", title: "Know what was built today.", line: "A dated record of every day on site, checked against your schedule." },
-  { n: "02", k: "Safety", title: "Catch risk between walks.", line: "PPE, exclusion zones and open edges, flagged with the clip." },
-  { n: "03", k: "Security", title: "Own the night.", line: "After-hours alerts, reviewed by a person before they reach you." },
-];
 ---
-<section class="section pillars" id="platform">
+<section class="section pillars" id="product">
   <div class="wrap">
+    <p class="eyebrow p-eyebrow">Construction intelligence</p>
     <h2 class="display p-head">One camera network.<br /><em>Every job on site.</em></h2>
     <div class="p-grid">
-      {pillars.map((p) => (
-        <article class="p-tile">
-          <span class="p-k mono">{p.n} {p.k}</span>
+      {PILLARS.map((p, i) => (
+        <article class="p-tile" id={p.id}>
+          <span class="p-k mono">0{i + 1} {p.name}</span>
           <h3 class="display">{p.title}</h3>
           <p>{p.line}</p>
         </article>
@@ -29,6 +27,7 @@ const pillars = [
 </section>
 
 <style>
+  .p-eyebrow { margin: 0 0 14px; }
   .p-head { font-size: clamp(40px, 6vw, 76px); margin: 0 0 64px; }
   .p-head em { color: var(--ink-3); }
   .p-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--ink); }

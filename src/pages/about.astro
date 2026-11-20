@@ -51,13 +51,14 @@ const beliefs = [
 
     <section class="section advisors">
       <div class="wrap">
-        <h2 class="display a-head">Built with the team<br /><em>behind Dragonfruit AI.</em></h2>
+        <p class="eyebrow a-k">Advisors</p>
+        <h2 class="display a-head">Advised by the team<br /><em>behind Dragonfruit AI.</em></h2>
         <div class="advisor-grid">
           {advisors.map((a) => (
             <a class="advisor" href={a.linkedin} target="_blank" rel="noopener" aria-label={`${a.name} on LinkedIn`}>
               <img src={`${base}${a.photo}`} alt={`Portrait of ${a.name}`} width="480" height="480" loading="lazy" />
               <span class="a-name">{a.name}</span>
-              <span class="a-role mono">{a.role}</span>
+              <span class="a-role mono">Advisor · {a.role}</span>
             </a>
           ))}
         </div>
@@ -87,6 +88,7 @@ const beliefs = [
   .b-v { color: var(--ink-2); max-width: 30ch; }
 
   .advisors { padding-top: 0; }
+  .a-k { margin: 0 0 14px; }
   .a-head { font-size: clamp(36px, 5vw, 60px); margin: 0 0 48px; }
   .a-head em { color: var(--ink-3); }
   .advisor-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 280px)); gap: 24px; }
