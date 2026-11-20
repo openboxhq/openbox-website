@@ -37,6 +37,34 @@ film() {
   ffmpeg -v error -y -i "$OUT/$name.mp4" -frames:v 1 -q:v 5 "$OUT/$name.jpg"
 }
 
+# How far the walk's held frame pushes in, as a share of the frame.
+PUSH=0.16
+
+# name source start land end slowdown hold width height crf
+# The site walk: slow motion up to the frame where the left worker's foot lands, that frame held with
+# a slow push-in, then the walk resumes. A short clip then reads as one long, deliberate shot.
+walk() {
+  local name=$1 src=$2 start=$3 land=$4 end=$5 slow=$6 hold=$7 w=$8 h=$9 crf=${10}
+  local before after total offset frames_before frames_hold span
+  span=$(echo "$end - $start" | bc)
+  before=$(echo "($land - $start) * $slow" | bc)
+  after=$(echo "($end - $land) * $slow" | bc)
+  total=$(echo "$before + $hold + $after" | bc)
+  offset=$(echo "$total - 2 * $FADE" | bc)
+  frames_before=$(echo "$before * $FPS / 1" | bc)
+  frames_hold=$(echo "$hold * $FPS / 1" | bc)
+  ffmpeg -v error -y -ss "$start" -t "$span" -i "$SRC/$src" -filter_complex "
+    [0:v]split[s1][s2];
+    [s1]trim=end=$(echo "$land - $start" | bc),setpts=$slow*(PTS-STARTPTS),fps=$FPS,tpad=stop_mode=clone:stop_duration=$hold[a];
+    [s2]trim=start=$(echo "$land - $start" | bc),setpts=$slow*(PTS-STARTPTS),fps=$FPS[c];
+    [a][c]concat=n=2:v=1:a=0,scale=3840:2160:flags=bicubic,zoompan=z='if(lt(on,$frames_before),1,if(lt(on,$frames_before+$frames_hold),1+$PUSH*pow((on-$frames_before)/$frames_hold,2)*(3-2*(on-$frames_before)/$frames_hold),1+$PUSH))':x='(iw-iw/zoom)*0.5':y='(ih-ih/zoom)*0.82':d=1:s=${w}x${h}:fps=$FPS,split[h0][b0];
+    [h0]trim=0:$FADE,setpts=PTS-STARTPTS,fps=$FPS[head];
+    [b0]trim=$FADE:$total,setpts=PTS-STARTPTS,fps=$FPS[body];
+    [body][head]xfade=transition=fade:duration=$FADE:offset=$offset,format=yuv420p[out]" \
+    -map "[out]" -an -c:v libx264 -preset slow -crf "$crf" -movflags +faststart "$OUT/$name.mp4"
+  ffmpeg -v error -y -i "$OUT/$name.mp4" -frames:v 1 -q:v 5 "$OUT/$name.jpg"
+}
+
 # name source second crop postfilter
 # Exports one sharp frame from the 4K source for the page heroes, which show a still across the full width.
 still() {
@@ -51,7 +79,8 @@ film progress 33893697.mp4 0   15  1   1280 720  24 "$PROGRESS_CROP" ""
 # later the view opens onto houses and parked cars. Slowed three times, with in-between frames built.
 film security 29568504.mp4 4   3.5 3   1280 720  24 "" "$NIGHT_GRADE" "$SMOOTH"
 # The walk uses the seconds where both workers face away, slowed from 60 to 24 frames a second.
-film safety   13569683.mp4 1.2 3.6 2.5 1280 720  24 "" ""
+# The left worker's foot lands 4.2 seconds into the source; the frame is held there for 3.5 seconds.
+walk safety   13569683.mp4 1.2 4.2 4.8 2.5 3.5 1280 720 24
 still hero     4404097.mp4  6 "$HERO_CROP" ""
 # The delogo patch covers two small site cabins that carry a hire company's mark.
 still progress 33893697.mp4 2 "$PROGRESS_CROP" ",delogo=x=685:y=1288:w=107:h=47"
