@@ -81,15 +81,30 @@ const SCROLL_LAG_MS = 170;
 const MAX_TRAIL = 0.22;
 
 /** Scroll progress marks, 0 to 1 across the pinned section. */
+/*
+ * The story is timed in screens of scroll. Each whole screen lands on a finished state:
+ * 1 = the spread stack with its statement, 2, 3 and 4 = the three chapters.
+ * A page-down key press (about 0.87 of a screen) lands on the same four states.
+ */
+/** Screens of scroll the story is pinned for. The section is one screen taller than this. */
+export const STORY_SCREENS = 4;
+const mark = (screens: number): number => screens / STORY_SCREENS;
 /** The hero clips rotate up to this mark, hold while the film shrinks, then rotate again in the stack. */
 const HERO_HOLD = 0.01;
-const SHRINK_END = 0.22;
-const EXPLODE_START = 0.11;
-const EXPLODE_END = 0.28;
-const MANIFESTO: [number, number, number, number] = [0.19, 0.24, 0.33, 0.37];
-const SIDE_START = 0.35;
-export const CHAPTERS_START = 0.46;
-const FADE = 0.03;
+const SHRINK_END = mark(0.7);
+const EXPLODE_START = mark(0.25);
+const EXPLODE_END = mark(0.7);
+const MANIFESTO: [number, number, number, number] = [mark(0.42), mark(0.66), mark(1.05), mark(1.22)];
+const SIDE_START = mark(1.05);
+export const CHAPTERS_START = mark(1.4);
+/** Each chapter runs for this long; the last one then holds until the story ends. */
+export const CHAPTER_SPAN = mark(0.95);
+const FADE = mark(0.13);
+/** Within a chapter, as shares of its length: when the plan arrives and when each tag appears. */
+const PLAN_IN = 0.08;
+const TAG_FIRST = 0.04;
+const TAG_STEP = 0.04;
+const TAG_FADE = 0.06;
 
 const PLAN_GLASS: Omit<PlanStyle, "font"> = { line: BLUE, faint: "rgba(143,188,255,.38)", fill: "rgba(143,188,255,.1)", text: "rgba(214,230,255,.9)" };
 const PLAN_PAPER: Omit<PlanStyle, "font"> = { line: "#1b2a44", faint: "rgba(27,42,68,.34)", fill: "rgba(27,42,68,.06)", text: "#1b2a44" };
@@ -161,7 +176,7 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     clips.set(name, { name, film: hiddenVideo(`${config.mediaBase}${name}.mp4`, pin), poster, alpha: name === heroCycle[0][0] ? 1 : 0 });
   }
 
-  const chapterSpan = (1 - CHAPTERS_START) / config.chapters.length;
+  const chapterSpan = CHAPTER_SPAN;
   let width = 0;
   let height = 0;
   let dpr = 1;
@@ -310,7 +325,7 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     const shear = lerp(0, PLATE_SHEAR, shrink);
     const restX = narrow ? width / 2 : lerp(width / 2, width * 0.69, side);
     const clearNav = navHeight + NAV_GAP + plateW * PLATE_RATIO * STACK_HALF_SPAN;
-    const restY = narrow ? lerp(height * 0.34, height * 0.25, side) : Math.max(clearNav, lerp(height * 0.4, height * 0.45, side));
+    const restY = Math.max(clearNav, narrow ? lerp(height * 0.34, height * 0.25, side) : lerp(height * 0.4, height * 0.45, side));
     const cx = lerp(width / 2, restX, shrink);
     const cy = lerp(topInset + cardH / 2, restY, shrink);
     const stepX = plateW * DEPTH_X * explode;
@@ -378,7 +393,7 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     const start = CHAPTERS_START + Math.max(0, chapter) * chapterSpan;
     const local = span(p, start, start + chapterSpan);
     const leaving = chapter === config.chapters.length - 1 ? 1 : 1 - span(p, start + chapterSpan - FADE, start + chapterSpan);
-    const arrive = Math.min(span(local, 0, 0.1), leaving);
+    const arrive = Math.min(span(local, 0, PLAN_IN), leaving);
 
     onPlate(1, () => {
       roundedRect(ctx, w, h, radius);
@@ -448,7 +463,8 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
     const since = BAYS_BY_DAY[day] - BAYS_BY_DAY[0];
     active.tags.forEach((tag, i) => {
       if (tag.days && !tag.days.includes(day)) return;
-      const reveal = Math.min(span(local, 0.1 + i * 0.08, 0.2 + i * 0.08), leaving) * insightAlpha;
+      const tagStart = TAG_FIRST + i * TAG_STEP;
+      const reveal = Math.min(span(local, tagStart, tagStart + TAG_FADE), leaving) * insightAlpha;
       if (reveal <= 0) return;
       const colour = tag.tone === "alert" ? ALERT : "#ffffff";
       const text = tag.text.replace("{bays}", String(since));
@@ -529,9 +545,20 @@ export function startStory(root: HTMLElement, config: StoryConfig): void {
   for (const clip of clips.values()) clip.poster.addEventListener("load", () => draw(performance.now()));
   document.fonts?.ready.then(() => draw(performance.now()));
 
-  new IntersectionObserver((entries) => setVisible(entries.some((e) => e.isIntersecting) && !document.hidden)).observe(root);
-  document.addEventListener("visibilitychange", () => {
+  /** Whether any part of the story is on screen right now, measured directly. */
+  const onScreen = (): boolean => {
     const rect = root.getBoundingClientRect();
-    setVisible(!document.hidden && rect.bottom > 0 && rect.top < window.innerHeight);
-  });
+    return !document.hidden && rect.bottom > 0 && rect.top < window.innerHeight;
+  };
+  /** Starts or stops the drawing loop to match what is on screen. Safe to call at any time. */
+  const sync = (): void => {
+    const next = onScreen();
+    if (next !== visible) setVisible(next);
+  };
+  // The observer is the cheap signal. Scroll, tab and page-restore events re-check it, so a missed
+  // or late observer callback can never leave the story frozen on one state.
+  new IntersectionObserver(sync).observe(root);
+  window.addEventListener("scroll", sync, { passive: true });
+  window.addEventListener("pageshow", sync);
+  document.addEventListener("visibilitychange", sync);
 }

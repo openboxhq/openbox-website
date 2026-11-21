@@ -1,6 +1,6 @@
 ---
 import { DAYS, PILLARS, SMALL_SCREEN_MEDIA } from "../data/product";
-import { CHAPTERS_START, type StoryConfig } from "../scripts/story";
+import { STORY_SCREENS, type StoryConfig } from "../scripts/story";
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const LAYERS = ["Footage", "Drawing", "Insights"];
@@ -10,10 +10,11 @@ const config: StoryConfig = {
   smallScreenClips: SMALL_SCREEN_MEDIA,
   chapters: PILLARS.map((p) => ({ clip: p.media, source: p.source, sheet: p.sheet, drawing: p.drawing, tags: p.tags, readouts: p.readouts })),
 };
-const anchorAt = (i: number) => CHAPTERS_START + ((1 - CHAPTERS_START) / PILLARS.length) * (i + 0.3);
+/** Each chapter is complete at a whole screen of scroll: 2, 3 and 4. Menu links land there. */
+const FIRST_CHAPTER_SCREEN = 2;
 ---
-<section class="story" id="product" data-story data-config={JSON.stringify(config)}>
-  {PILLARS.map((p, i) => <span class="st-anchor" id={p.id} style={`top: calc(${anchorAt(i)} * (var(--story-h) - 100svh))`}></span>)}
+<section class="story" id="product" data-story data-config={JSON.stringify(config)} style={`--story-h: ${(STORY_SCREENS + 1) * 100}svh`}>
+  {PILLARS.map((p, i) => <span class="st-anchor" id={p.id} style={`top: ${(FIRST_CHAPTER_SCREEN + i) * 100}svh`}></span>)}
   <div class="st-pin" data-pin>
     <canvas aria-hidden="true"></canvas>
 
@@ -72,7 +73,7 @@ const anchorAt = (i: number) => CHAPTERS_START + ((1 - CHAPTERS_START) / PILLARS
 </script>
 
 <style>
-  .story { --story-h: 720svh; position: relative; height: var(--story-h); background: #0a0a09; }
+  .story { position: relative; height: var(--story-h); background: #0a0a09; }
   .st-anchor { position: absolute; left: 0; width: 1px; height: 1px; scroll-margin-top: 0; }
   .st-pin { position: sticky; top: 0; height: 100svh; overflow: hidden; color: #fff; }
   .st-pin canvas { position: absolute; inset: 0; width: 100%; height: 100%; }

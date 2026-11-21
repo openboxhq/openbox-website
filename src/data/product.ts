@@ -86,7 +86,7 @@ export const PILLARS: Pillar[] = [
       { x: 0.08, y: 0.66, text: "PERIMETER · SECURE", days: [0, 1, 2, 4, 5] },
       { x: 0.08, y: 0.66, text: "REVIEWED BY A PERSON", days: [3, 6] },
     ],
-    readouts: [0, 1, 2, 3, 4, 5, 6].map((d) => ([3, 6].includes(d) ? "1 after-hours alert, reviewed and sent" : "No alerts")),
+    readouts: [0, 1, 2, 3, 4, 5, 6].map((d) => ([3, 6].includes(d) ? "1 alert, reviewed and sent" : "No alerts")),
   },
 ];
 
