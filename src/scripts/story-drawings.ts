@@ -71,13 +71,20 @@ function label(ctx: Ctx, text: string, x: number, y: number, s: PlanStyle, align
   ctx.textAlign = "left";
 }
 
+/** Plan geometry stays above this share of the sheet's height, so the title block below it is never covered. */
+const PLAN_FLOOR = 0.84;
+
+/** Below this plate width (phones) the title is left out: the insight tags need the room. */
+const TITLE_MIN_WIDTH = 360;
+
+/** The sheet's title sits in the bottom margin, below both the plan and the footage plate behind it. */
 function titleBlock(ctx: Ctx, w: number, h: number, sheet: string, s: PlanStyle): void {
   ctx.font = s.font;
   const boxW = ctx.measureText(sheet).width + 20;
   ctx.strokeStyle = s.faint;
   ctx.lineWidth = 1;
-  ctx.strokeRect(w - boxW - 14, h - 36, boxW, 22);
-  label(ctx, sheet, w - boxW - 4, h - 24.5, s);
+  ctx.strokeRect(w - boxW - 14, h - 31, boxW, 22);
+  label(ctx, sheet, w - boxW - 4, h - 19.5, s);
 }
 
 function planProgress(ctx: Ctx, w: number, h: number, s: PlanStyle): void {
@@ -117,7 +124,7 @@ function planSecurity(ctx: Ctx, w: number, h: number, s: PlanStyle): void {
   ctx.lineTo(w * 0.47, h * 0.34);
   ctx.lineTo(w, h * 0.34);
   ctx.moveTo(w * 0.47, h * 0.34);
-  ctx.quadraticCurveTo(w * 0.46, h * 0.62, w * 0.36, h);
+  ctx.quadraticCurveTo(w * 0.46, h * 0.6, w * 0.4, h * PLAN_FLOOR);
   ctx.stroke();
 
   ctx.strokeStyle = s.line;
@@ -125,13 +132,13 @@ function planSecurity(ctx: Ctx, w: number, h: number, s: PlanStyle): void {
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(w * 0.03, h * 0.05);
-  ctx.lineTo(w * 0.03, h * 0.94);
-  ctx.lineTo(w * 0.97, h * 0.94);
+  ctx.lineTo(w * 0.03, h * PLAN_FLOOR);
+  ctx.lineTo(w * 0.97, h * PLAN_FLOOR);
   ctx.stroke();
   ctx.setLineDash([]);
   ctx.lineWidth = 1;
 
-  for (const [cx, cy, a0, a1] of [[0.95, 0.9, 3.4, 4.2], [0.05, 0.08, 0.25, 1.05]] as const) {
+  for (const [cx, cy, a0, a1] of [[0.95, 0.78, 3.4, 4.2], [0.05, 0.08, 0.25, 1.05]] as const) {
     ctx.beginPath();
     ctx.moveTo(w * cx, h * cy);
     ctx.arc(w * cx, h * cy, w * 0.2, a0, a1);
@@ -145,7 +152,7 @@ function planSecurity(ctx: Ctx, w: number, h: number, s: PlanStyle): void {
   }
   label(ctx, "GATE 2", w * 0.49, h * 0.06, s);
   label(ctx, "HAUL ROAD", w * 0.5, h * 0.37, s);
-  label(ctx, "FENCE LINE", w * 0.07, h * 0.9, s);
+  label(ctx, "FENCE LINE", w * 0.27, h * 0.79, s);
 }
 
 function planSafety(ctx: Ctx, w: number, h: number, s: PlanStyle): void {
@@ -174,7 +181,7 @@ export function drawPlan(ctx: Ctx, kind: DrawingKind, sheet: string, w: number, 
   if (kind === "progress") planProgress(ctx, w, h, style);
   else if (kind === "security") planSecurity(ctx, w, h, style);
   else planSafety(ctx, w, h, style);
-  titleBlock(ctx, w, h, sheet, style);
+  if (w >= TITLE_MIN_WIDTH) titleBlock(ctx, w, h, sheet, style);
 }
 
 function insightProgress(ctx: Ctx, w: number, h: number, day: number, s: InsightStyle): void {

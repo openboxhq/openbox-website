@@ -18,7 +18,7 @@ export interface Pillar {
   heroMedia?: string;
   /** Label on the footage layer. */
   source: string;
-  /** Title block on the drawing layer. */
+  /** Title block on the drawing layer. Keep it short: it must fit beside the plan on a phone. */
   sheet: string;
   drawing: DrawingKind;
   /** Findings on the insights layer. Tags over footage of real people stay neutral: no person is shown as at fault. */
@@ -40,7 +40,7 @@ export const PILLARS: Pillar[] = [
     media: "progress",
     heroMedia: "hero",
     source: "DRONE 02",
-    sheet: "S-201 · STEEL FRAMING PLAN",
+    sheet: "S-201 · FRAMING PLAN",
     drawing: "progress",
     tags: [
       { x: 0.58, y: 0.2, text: "STEEL FRAME · GRID E–F" },
@@ -79,7 +79,7 @@ export const PILLARS: Pillar[] = [
     media: "security",
     heroMedia: "security-hero",
     source: "MAST CAM 04",
-    sheet: "C-101 · SITE AND PERIMETER PLAN",
+    sheet: "C-101 · SITE PLAN",
     drawing: "security",
     tags: [
       { x: 0.64, y: 0.68, text: "PLANT IN USE · 02:14", tone: "alert", days: [3, 6] },
