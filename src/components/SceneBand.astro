@@ -1,0 +1,21 @@
+---
+---
+<section class="scene-band">
+  <canvas class="sb-canvas" aria-hidden="true" data-scene></canvas>
+  <p class="wrap sb-cap mono">One site, three kinds of capture: drone surveys, site walks and site cameras feed the same record.</p>
+</section>
+
+<script>
+  import { startJobsiteScene } from "../scripts/jobsite-scene";
+  const canvas = document.querySelector<HTMLCanvasElement>("[data-scene]");
+  if (canvas) startJobsiteScene(canvas);
+</script>
+
+<style>
+  .scene-band {
+    position: relative; overflow: hidden; height: min(78vh, 720px); min-height: 460px; margin: 12px; border-radius: 14px;
+    background: radial-gradient(120% 90% at 60% 45%, #1d1d1b 0%, #0c0c0b 60%, #080807 100%); color: #fff;
+  }
+  .sb-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .sb-cap { position: absolute; left: 0; right: 0; bottom: 24px; margin: 0 auto; font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+</style>

@@ -1,24 +1,32 @@
 ---
 interface Props {
   eyebrow: string;
+  /** Basename of a wide still in public/media (<name>-wide.webp), shown behind the title. */
+  image?: string;
 }
-const { eyebrow } = Astro.props;
+const { eyebrow, image } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 ---
 <section class="page-hero">
-  <div class="wrap">
-    <p class="eyebrow ph-k"><span class="signal-dot"></span>{eyebrow}</p>
-    <h1 class="display"><slot name="title" /></h1>
-    <p class="ph-lede"><slot name="lede" /></p>
+  <div class="ph-card" style={image ? `--ph-image: url(${base}media/${image}-wide.webp)` : undefined}>
+    <div class="wrap ph-copy">
+      <p class="eyebrow ph-k">{eyebrow}</p>
+      <h1 class="display"><slot name="title" /></h1>
+      <p class="ph-lede"><slot name="lede" /></p>
+    </div>
   </div>
 </section>
 
 <style>
-  .page-hero {
-    background: var(--grain), radial-gradient(110% 90% at 80% 20%, #1d1d1b 0%, #0c0c0b 65%);
-    color: #fff; padding-block: 220px 128px;
+  .page-hero { background: var(--paper); padding: var(--top-h, 104px) 12px 0; }
+  .ph-card { position: relative; overflow: hidden; border-radius: 14px; background: #0a0a09; color: #fff; padding-block: clamp(88px, 13vw, 176px) clamp(64px, 9vw, 120px); }
+  .ph-card::before {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(8,8,7,.88) 0%, rgba(8,8,7,.6) 55%, rgba(8,8,7,.32) 100%), var(--ph-image, none) center / cover no-repeat;
   }
-  .ph-k { display: inline-flex; align-items: center; gap: 10px; color: rgba(255,255,255,.62); margin: 0 0 22px; }
+  .ph-copy { position: relative; }
+  .ph-k { color: rgba(255,255,255,.72); margin: 0 0 22px; }
   .page-hero h1 { font-size: clamp(48px, 8vw, 112px); line-height: .96; margin: 0 0 28px; }
-  .page-hero h1 :global(em) { color: var(--signal); }
-  .ph-lede { margin: 0; font-size: clamp(17px, 1.6vw, 21px); color: rgba(255,255,255,.72); max-width: 48ch; }
+  .page-hero h1 :global(em) { color: rgba(255,255,255,.66); }
+  .ph-lede { margin: 0; font-size: clamp(17px, 1.6vw, 21px); color: rgba(255,255,255,.84); max-width: 48ch; text-wrap: pretty; }
 </style>
