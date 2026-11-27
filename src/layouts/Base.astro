@@ -22,6 +22,7 @@ const CSP = [
   "upgrade-insecure-requests",
 ].join("; ");
 const isProd = import.meta.env.PROD;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
 ---
 <!doctype html>
 <html lang="en" data-nav="light">
@@ -32,9 +33,14 @@ const isProd = import.meta.env.PROD;
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" type="application/xml" href={`${base}sitemap.xml`} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <slot name="head" />
   </head>
   <body>
     <slot />
